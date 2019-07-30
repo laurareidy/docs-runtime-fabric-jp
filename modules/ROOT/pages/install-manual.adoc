@@ -1,0 +1,209 @@
+= Runtime Fabric の手動インストール
+ifndef::env-site,env-github[]
+include::_attributes.adoc[]
+endif::[]
+
+このトピックでは、データセンターでホストする VM に Anypoint Runtime Fabric をインストールし、登録する方法について説明します。
+
+[WARNING]
+====
+使用するインフラストラクチャがハードウェア、オペレーティングシステム、ネットワークの最小要件を満たすことを確認します。組織の運用チーム、ネットワークチーム、セキュリティチームは、これらの要件を確認する必要があります。xref:install-sys-reqs.adoc[「Anypoint Runtime Fabric のシステム要件」]およびxref:install-port-reqs.adoc[「Anypoint Runtime Fabric のネットワークとポートの要件」]を参照してください。
+====
+
+== 開始する前に
+
+インストールを開始する前に次の条件が満たされていることを確認します。
+
+* xref:install-create-rtf-arm.adoc[Runtime Manager で Runtime Fabric を作成]している。
+* xref:install-sys-reqs.adoc[システム要件]のページで示されているとおりに、必要なハードウェアがプロビジョニングされている。
+* 必要なディスクが各 VM のブロックデバイスとしてリストされている。ディスクをマウントまたはフォーマットしないでください。
+* 必要なポートが開いており、ホスト名がxref:install-port-reqs.adoc[ネットワーク要件]のページで示されているとおりにホワイトリストに登録されている。
+
+== Mule ライセンスキーが Base64 でエンコードされていることの確認
+
+Runtime Fabric をインストールするには、Mule ライセンスキーが Base64 でエンコードされている必要があります。
+
+=== Linux
+
+Linux でライセンスファイルをエンコードするには、以下を実行します。
+
+----
+base64 -w0 license.lic
+----
+
+=== MacOS
+
+MacOS でライセンスファイルをエンコードするには、ターミナルから以下を実行します。
+
+----
+base64 -b0 license.lic
+----
+
+=== Windows
+
+Windows でライセンスファイルをエンコードするには、シェルターミナルエミュレータ (cygwin など) や Unix ベースのコンピュータにアクセスして、次の手順を実行します。
+
+. 組織の Mule Enterprise ライセンスキーファイル (`license.lic`) を見つけ、必要に応じて Unix 環境に転送します。
+. ターミナルl/シェルを開き、`azure` サブディレクトリに移動します。
+. 実行前に Mule Enterprise ライセンスを簡単に追加できるように、テキストエディタに以下のコマンドをコピーします。
++
+----
+RTF_MULE_LICENSE='' \
+./generate-templates.sh
+----
+
+== インストール中に実行される操作
+
+インストールでは各 VM で次のアクションが実行されます。
+
+* 専用ディスクをフォーマットします。
+* 専用ディスクを適切なパスにマウントします。
+* iptables ルールを設定します。
+* 必要なカーネルモジュールを有効にします。
+* システムサービスを有効にして、再読み込みします。
+
+== インストール
+
+まず、インストールでリーダーとして機能するコントローラ VM にスクリプト ZIP ファイルをダウンロードします。
+
+. Anypoint Platform にサインインし、[Runtime Manager] に移動します。
+. 左側のナビゲーションペインで、*Runtime Fabric* を選択します。
+. 作成した Runtime Fabric をクリックします。その状態は [Activating (アクティブ化中)] になっている必要があります。
+. *[Download files (ファイルをダウンロード)]* ボタンを右クリックし、[Copy link location (リンクの場所をコピー)] を選択します。
+. コントローラ VM にファイルをダウンロードします。
+.. コントローラ VM へのシェル (SSH セッション) を開きます。
+.. ファイル `curl {INSTALLER_URL} --output rtf-install-scripts.zip` をダウンロードします。
+. ダウンロードしたら、`rtf-install-scripts.zip` ファイルを別のディレクトリに展開します。
++
+----
+mkdir -p ./rtf-install-scripts && unzip rtf-install-scripts.zip -d ./rtf-install-scripts
+----
+
+`rtf-install-scripts/` ディレクトリ内に、次を含む `manual` という名前のサブディレクトリがあります。
+
+* `generate-configs.sh`: 各 VM の環境変数の生成に役立つスクリプト。
+* `README.md`: インストールをサポートする手順を含むマークダウンファイル。
+
+=== 定義する変数
+
+次に、インストールで必要な変数を理解します。`RTF_ACTIVATION_DATA` 変数の値は、Runtime Manager の [Runtime Fabric] ページで確認できます。.
+
+[%header,cols="3*a"]
+|===
+|パラメータ | 説明 | 例
+| `RTF_CONTROLLER_IPS` | 空白で区切られた、コントローラ VM の IP アドレス。1 番目の IP アドレスは、インストールのリーダーである必要があります。 | `"10.3.0.4 10.3.0.5 10.3.0.6"`
+| `RTF_WORKER_IPS` | 空白で区切られた、ワーカー VM の IP アドレス。 | `"10.3.0.11 10.3.0.12 10.3.0.13"`
+| `RTF_DOCKER_DEVICE` |  プロビジョニングされた 1000 IOPS をサポートする Docker 専用のディスクのブロックデバイスのフルパス。 | `/dev/xvdc`
+| `RTF_ETCD_DEVICE` |  プロビジョニングされた 3000 IOPS をサポートする etcd 専用のディスクのブロックデバイスのフルパス。 | `/dev/xvdb`
+| `RTF_ACTIVATION_DATA` | エンコードされた Runtime Fabric アクティベーションデータ。このデータにアクセスするには、Runtime Manager で Runtime Fabric を表示します。 | `NzdlMzU1YTktMzAxMC00OGE0LWJlMGQtMDdxxxx`
+| `RTF_MULE_LICENSE` | 組織の Mule Enterprise ライセンスキー (`license.lic`) を Base64 でエンコードしたコンテンツ | `==ABCD12934...`
+
+|===
+
+[NOTE]
+ディスクへのブロックデバイスのパスを特定するには、VM で `lsblk` コマンドを使用します。
+Mule ライセンスキーを Base64 でエンコードするには、`base64 -w0 license.lic` コマンドを使用します。  (OSX では `base64 -b0 license.lic`)。
+
+=== 省略可能な変数
+
+次の変数は、組織の要件に基づいて定義できます。
+
+[%header,cols="3*a"]
+|===
+|パラメータ | 説明 | 例
+| `RTF_HTTP_PROXY` | アウトバウンド HTTP 要求を転送する HTTP プロキシサーバのホスト名およびポート。 | `1.1.1.1:80`
+| `RTF_TCP_PROXY` | アウトバウンド TCP 要求を転送する TCP プロキシサーバのホスト名およびポート。 | `1.1.1.2:800`
+| `RTF_NO_PROXY` | プロキシをバイパスする必要があるホストのカンマ区切りリスト。 | `1.1.1.1,no-proxy.com`
+| `RTF_SERVICE_UID` | 各 Runtime Fabric サービスを実行するユーザ ID を表す整数。「planet」という名前のユーザを作成するデフォルトの動作を上書きします。 | `1000`
+| `RTF_SERVICE_GID` | 各 Runtime Fabric サービスを実行するときに使用されるグループ ID を表す整数。「planet」という名前のグループを作成するデフォルトの動作を上書きします。 | `900`
+
+|===
+
+[NOTE]
+Runtime Fabric の特定のバージョンをインストールするには、インストール時にリーダーとして機能するコントローラ VM のパス `/opt/anypoint/runtimefabric/installer.tar.gz` にインストールパッケージを転送します。これは、Anypoint コントロールプレーンからの最新パッケージのダウンロードをスキップします。
+
+`./generate-configs.sh` スクリプトを使用して、VM ごとに環境変数を生成します。
+
+. 以下のコマンドをテキストエディタにコピーして、一重引用符内の各変数の値を入力します。
++
+----
+RTF_CONTROLLER_IPS='' \
+RTF_WORKER_IPS='' \
+RTF_DOCKER_DEVICE='' \
+RTF_ETCD_DEVICE='' \
+RTF_ACTIVATION_DATA='' \
+RTF_MULE_LICENSE='' \
+./generate-configs.sh
+----
++
+. コントローラ VM でシェル/SSH を開き、展開したディレクトリから `manual` サブディレクトリに移動します。
+. テキストエディタからコマンドをコピーし、ターミナルに貼り付けて、コントローラ VM でコマンドを実行します。このスクリプトは、各 VM で実行する一連の手順とスクリプトを各 VM の IP アドレスで分類して出力します。
+.. 各 VM でその IP アドレスに基づいてスニペットを実行し、必要な環境変数を適用します。
+.. 各 VM で `./scripts/init.sh` ファイルを `/opt/anypoint/runtimefabric` にコピーして、スクリプトが実行可能であることを確認します。以下のスクリプトは、現在の作業ディレクトリに、展開されたディレクトリ `rtf-install-scripts` が含まれることを前提とします。
++
+----
+mkdir -p /opt/anypoint/runtimefabric && cp ./rtf-install-scripts/scripts/init.sh /opt/anypoint/runtimefabric/init.sh && chmod +x /opt/anypoint/runtimefabric/init.sh
+----
+
+. コントローラ VM で特権モードで `init.sh` スクリプトを実行します。
++
+----
+sudo /opt/anypoint/runtimefabric/init.sh foreground
+----
++
+. インストールで事前チェックが完了するまで待機します。出力は「*Execute preflight checks (事前チェックを実行)*」メッセージを過ぎても継続し、チェックが合格したことを示す必要があります。
++
+----
+...
+Tue Aug 14 02:28:54 UTC Starting the installation
+Tue Aug 14 02:28:56 UTC Operation has been created
+Tue Aug 14 02:28:57 UTC Execute preflight checks
+Tue Aug 14 02:29:48 UTC Configure packages for all nodes
+Tue Aug 14 02:29:59 UTC Bootstrap all nodes
+...
+----
++
+. 他のすべての VM で特権モードで `init.sh` スクリプトを実行します。このステップは各 VM で同時に実行できます。
++
+----
+sudo /opt/anypoint/runtimefabric/init.sh foreground
+----
++
+. インストールプロセスでエラーが発生した場合、エラーの解決方法を示すメッセージを出力してプロセスは終了します。多くの場合、1 つまたは複数の変数を有効な値に更新し、`init.sh` スクリプトを再実行することで、エラーを解決できます。
+
+[NOTE]
+このプロセスで Runtime Fabric がすべての VM にインストールされ、クラスタが形成されます。完了するまでに 15 ～ 25 分以上かかることがあります。
+
+インストールが正常に完了すると、ファイル `/opt/anypoint/runtimefabric/.state/init-complete` が作成されます。
+
+== インストールの進行状況の監視
+
+インストール中に進行状況を参照するには、各 VM の出力ログを確認します。
+
+. 最初のコントローラ VM へのシェル (SSH セッション) を開きます。
+. `/var/log/rtf-init.log` にある出力ログを確認します。
++
+----
+tail -f /var/log/rtf-init.log
+----
+
+[NOTE]
+各 VM の同じログを確認して、その進行状況を参照できます。
+
+インストールが正常に完了すると、ファイル `/opt/anypoint/runtimefabric/.state/init-complete` が作成されます。
+
+== オペレーションセンターへのアクセス
+
+インストールが正常に完了したら、オペレーションセンターにログインして Runtime Fabric インフラストラクチャの状況を表示します。オペレーションセンターへのアクセスとオペレーションセンターのユーザ名とパスワードの決定については、xref:using-opscenter.adoc[「Anypoint Runtime Fabric でのオペレーションセンターの使用」]を参照してください。
+
+
+== 一般的なエラー
+
+インストールプロセスでエラーが発生した場合、エラーの解決方法を示すメッセージを出力してプロセスは終了します。多くの場合、`/opt/anypoint/runtimefabric/env` ファイルの 1 つまたは複数の値を正しい値に更新し、`init.sh` スクリプトを再実行することで、エラーを解決できます。
+
+== 次のステップ
+
+Anypoint Runtime Fabric にアプリケーションをデプロイする前に、次の手順を実行する必要があります。
+
+* xref:associate-environments.adoc[Runtime Fabric への環境の関連付け]
+* xref:enable-inbound-traffic.adoc[Runtime Fabric へのインバウンドトラフィックの有効化]

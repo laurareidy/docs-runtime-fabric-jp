@@ -1,0 +1,111 @@
+= Anypoint Runtime Fabric の概要
+ifndef::env-site,env-github[]
+include::_attributes.adoc[]
+endif::[]
+
+Anypoint Runtime Fabric は、Mule アプリケーションや API ゲートウェイのデプロイメントおよびオーケストレーションを自動化するコンテナサービスです。Runtime Fabric は AWS、Azure、仮想マシン (VM)、またはベアメタルサーバの顧客の管理対象インフラストラクチャ内で実行されます。
+
+Anypoint Runtime Fabric のいくつかの機能を次に示します。
+
+* アプリケーションごとに個別の Mule Runtime を実行することによるアプリケーション間の分離
+* 同じ一連のリソースで複数のバージョンの Mule Runtime を実行する機能
+* 複数のレプリカにわたるアプリケーションのスケーリング
+* 自動化されたアプリケーションフェイルオーバー
+* Anypoint Runtime Manager を使用したアプリケーション管理
+
+[NOTE]
+アカウントで Anypoint Runtime Fabric を有効にする方法については、カスタマーサクセスマネージャにお問い合わせください。
+
+== Runtime Fabric と他の PaaS プロバイダ
+
+Anypoint Runtime Fabric には、必要なすべてのコンポーネントが含まれています。これらのコンポーネント (Docker や Kubernetes など) は、Mule Runtime や他の MuleSoft サービスと効率的に連携するように最適化されています。
+
+[WARNING]
+既存の Kubernetes ベースの PaaS 内で Runtime Fabric をインストールすることはできません。
+
+PaaS ソリューションをすでに使用している場合、PaaS と平行して Runtime Fabric をデプロイすることをお勧めします。これにより、Anypoint Platform のすべての利点を活用できます。
+
+== Anypoint Management Center への Runtime Fabric の接続
+
+Anypoint Runtime Fabric では、次の操作がサポートされています。
+
+* Anypoint Runtime Manager からアプリケーションをデプロイする。
+* API Manager を使用して API ゲートウェイのポリシーの更新をデプロイする。
+* Anypoint Exchange を統合して関連アセットを保存および取得する。
+
+Anypoint Management Center とのインテグレーションを有効にするために、Runtime Fabric は AMQP プロトコルを使用してアウトバウンド接続を確立します。この接続は、相互 TLS を使用して保護されます。コントローラ VM で実行される一連のサービスは、アウトバウンド接続を開始して、アプリケーションをデプロイするために必要なメタデータとアセットを取得します。次に、これらのサービスは他の内部サービスを解釈してそれらと通信し、アセットをローカルにキャッシュしてアプリケーションをデプロイします。
+
+[NOTE]
+Anypoint Runtime Fabric は、AMQP プロトコルを使用して Anypoint Management Center に接続します。このプロトコルを使用して組織のネットワークからアウトバウンド接続を有効にする方法については、ネットワーク管理者にお問い合わせください。
+
+== Anypoint Runtime Fabric とスタンドアロン Mule Runtime (ハイブリッドデプロイメント)
+
+Mule アプリケーションのハイブリッドデプロイメントでは、Mule Runtime の 1 つのバージョンをサーバにインストールし、1 つ以上のアプリケーションをサーバにデプロイする必要があります。各アプリケーションは、Mule Runtime で使用できるリソースを共有します。証明書やデータベース接続などの他のリソースも、ドメインを使用して共有される場合があります。
+
+Anypoint Runtime Fabric は、異なる方法でリソースをプロビジョニングします。各 Mule アプリケーションや API ゲートウェイは、独自の Mule Runtime およびコンテナ内で実行されます。コンテナでアクセスできるリソースの量は、Mule アプリケーションや API プロキシのデプロイ時に指定します。これにより、Mule アプリケーションは他の連動関係を使用せずに複数の VM にわたって水平方向にスケールできます。また、同じ VM のリソースに対して異なるアプリケーションが相互に競合しないようになります。
+
+== Anypoint Runtime Fabric を使用するためのチェックリスト
+
+次のセクションには、Anypoint Runtime Fabric を適切に使用するための一般的な要件と考慮事項が記載されています。インストールを開始する前に次の条件を満たしていることを確認してください。
+
+Anypoint Runtime Fabric をインストールする前に、ネットワーク管理者または運用管理者に問い合わせて、これらの準備ができていることを確認してください。
+
+=== Anypoint Platform のロールと権限
+
+Anypoint Runtime Fabric を適切に使用するには、Anypoint Platform アカウントで次のロールと権限が有効になっている必要があります。
+
+* Anypoint Runtime Manager を使用してアプリケーションをデプロイおよび管理する権限
+* Anypoint アクセス管理を使用して Anypoint Platform ユーザの権限を管理する権限
+** Anypoint Runtime Fabric を使用するには、対応する環境の「*Organization Administrators (組織のシステム管理者)*」ロールまたは「*Manage Runtime Fabrics (Runtime Fabric の管理)*」権限が必要です。
+* Runtime Fabric へのインバウンドトラフィックを有効にするには、次の権限も必要です。
+** Grant Access to Secrets (シークレットへのアクセス権の付与)
+** Manage Secret Groups (シークレットグループの管理)
+** Read Secrets Metadata (シークレットメタデータの読み取り)
+** Write secrets (シークレットの作成)
++
+これらの権限は、[Access Management (アクセス管理)] の *[Secrets Manager (シークレットマネージャ)]* タブにあります。
+** アプリケーションをデプロイするには、Anypoint Platform アカウントの「*Exchange Contributors (Exchange コントリビュータ)*」ロールを有効にする必要があります。
+
+=== ネットワークとセキュリティ
+
+Anypoint Runtime Fabric を適切にインストールして使用するには、ネットワークに関する次の内容を把握および確認する必要があります。
+
+* 組織でアウトバウンド接続をプロキシにルーティングする必要がある
+* アウトバウンドアクセスは、Anypoint Platform に対して AMQP プロトコルを使用して許可される
+* 組織のネットワークおよびセキュリティポリシー (以下を含む)
+** CIDR 表記の内部ネットワーク IP アドレス範囲
+** Runtime Fabric で使用される CIDR 表記のサブネット範囲
+** 公開 IP アドレス (仮想マシンが許可されている場合)
+** 各 VM へのシェルアクセスの取得方法
+* Anypoint Runtime Fabric のインバウンドトラフィックを有効にする必要があるかどうか。通常、これは組織の Mule アプリケーションの機能に基づきます。
+** その場合、トラフィックが Runtime Fabric にルーティングされるように、目的の共通名が含まれる TLS 証明書を設定する必要があります。
+** 外部 TCP ロードバランサを作成または設定して、Runtime Fabric で実行されるアプリケーションへのトラフィックを管理する機能
+** DNS 設定を定義して、TLS 証明書の共通名を外部ロードバランサの IP アドレスに関連付ける機能
+
+=== インフラストラクチャと操作
+
+Anypoint Runtime Fabric を適切にインストールして使用するためのネットワークインフラストラクチャの要件を次に示します。
+
+* 必要なハードウェアがプロビジョニングされているか、インフラストラクチャプロバイダを使用して必要なハードウェアを作成するのに十分なクォータがある。これには次が含まれます。
+** 仮想マシン
+** プロビジョニングされた IOPS を備えるディスク
+** 仮想ネットワーク
+** ファイアウォールルール/セキュリティグループ
+** ロードバランサ
+* 上記のリソースを作成する適切な権限がある (AWS または Azure を使用してハードウェアをプロビジョニングする場合)。
+* ログを組織のログプロバイダに転送する方法を理解している。
+* アラートを設定する組織の SMTP プロバイダに関する詳細がある。
+
+=== Mule
+
+Mule アプリケーションや API プロキシをデプロイするには、以下が必要です。
+
+* 組織の Mule ライセンスキーへのアクセス権
+* スタンドアロン Mule Runtime を使用して Mule Enterprise ライセンスキーをインストールする機能
+* 1 つ以上の Mule アプリケーション
+
+== 関連情報
+
+* xref:architecture.adoc[Runtime Fabric アーキテクチャ]
+* xref:install-sys-reqs.adoc[Anypoint Runtime Fabric のシステム要件の確認]
+* xref:install-port-reqs.adoc[Anypoint Runtime Fabric のネットワークポート要件]

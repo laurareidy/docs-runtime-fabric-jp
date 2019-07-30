@@ -1,0 +1,11 @@
+= Runtime Fabric の管理
+
+Runtime Fabric をインストールおよび設定し、Mule アプリケーションと API プロキシをデプロイした後、追加のタスクを実行しなければならない場合があります。
+
+* クラスタのノードを追加または削除して、クラスタの健全性を維持したり、アップグレードを実行したりします。xref:manage-nodes.adoc[「Runtime Fabric へのノードの追加または削除」]を参照してください。
+* Runtime Fabric インストールのパフォーマンスと健全性を監視します。xref:using-opscenter.adoc[「Anypoint Runtime Fabric でのオペレーションセンターの使用」]を参照してください。
+* インストールのエラーまたはインストール後のエラーのトラブルシューティングを行います。xref:troubleshoot-guide.adoc[「Runtime Fabric のトラブルシューティング」]を参照してください。
+
+== 関連情報
+
+* xref:configure-alerting.adoc[Runtime Fabric でのアラートの設定]

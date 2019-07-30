@@ -1,0 +1,140 @@
+= Runtime Fabric のトラブルシューティングガイド
+ifndef::env-site,env-github[]
+include::_attributes.adoc[]
+endif::[]
+
+このトピックでは、Anypoint Runtime Fabric をインストールするときの一般的なエラーとその解決手順について説明します。
+
+init スクリプトを実行することで、失敗したインストールを、インストールが停止した時点から再開することができます。
+
+*AWS および手動インストール*:
+----
+/opt/anypoint/runtimefabric/init.sh
+----
+
+*Azure インストール*:
+----
+/opt/anypoint/runtimefabric/script.sh
+----
+
+
+== すべてのノードで実行するトラブルシューティング手順
+
+以下の手順はすべてのノードで実行します。
+
+=== プロパティの検出
+
+この手順では、インストールプロセスで手順を実行するために必要な変数を検出します。この変数をインストールに提供する方法は、インストールを実行する場所により異なります。
+
+* AWS の場合、変数は terraform スクリプトで設定され、`/opt/anypoint/runtimefabric/env` に配置されているファイルに出力されます。
+* Azure の場合、変数は ARM テンプレートの実行時に設定され、仮想マシンインスタンスでタグとして取得されます。
+* 手動インストールの場合、ユーザが `/opt/anypoint/runtimefabric/env` にある値を使用してファイルを作成します。
+
+このプロパティを取得したら、Anypoint Platform に接続して `RTF_ACTIVATION_DATA` 値に基づいて追加の値を取得するための手順を実行します。
+
+==== 一般的なエラー
+
+アクティベーションデータ値に問題がある場合や、インスタンスでのインターネットアクセスに問題がある場合、次のエラーが発生することがあります。
+
+----
+curl: (7) Failed connect to anypoint.mulesoft.com:443; Operation now in progress
+Error: Failed to fetch registration properties. (000). Please check your token is valid
+
+
+============ Error ============
+Exit code: 1
+Line:
+----
+
+このエラーが確認された場合、次の操作を実行してください。
+
+* インスタンスにアウトバウンドインターネット接続があることを確認します。簡単な検証方法は、次のコマンドを実行し、301 応答が返されることを確認することです。
++
+----
+curl https://anypoint.mulesoft.com
+----
++
+* ネットワーク接続の初期化が完了していない場合は、インストール手順の実行を再試行します。
+** Azure では、スクリプトは `/opt/anypoint/runtimefabric/script.sh foreground` にあります。
+** AWS および手動インストールでは、スクリプトは `/opt/anypoint/runtimefabric/init.sh foreground` にあります。
+* Anypoint Runtime Manager で作成された Runtime Fabric と比較することで、アクティベーションデータ値が正しいことを検証します。
+
+問題が引き続き発生する場合は、サポートチケットを申請して詳細なサポートを要求してください。
+
+=== パッケージのインストール
+
+この手順では、必要なパッケージをインスタンスにインストールします。`yum` パッケージリポジトリを使用して、必要なパッケージのダウンロードとインストールを行います。
+
+==== 一般的なエラー
+
+この手順でエラーがある場合、以下を確認します。
+
+* インスタンスにアウトバウンドインターネット接続があることを確認します。簡単な検証方法は、次のコマンドを実行し、301 応答が返されることを確認することです。
++
+----
+curl https://anypoint.mulesoft.com
+----
++
+* 手動インストールを実行している場合、`init.sh` スクリプトがルート権限で実行されていることを確認します。
++
+----
+sudo ./init.sh foreground
+----
++
+* 必要なパッケージの 1 つを手動でインストールし、インストールスクリプト以外でインストールが成功するかどうかを確認します。
++
+----
+sudo yum install -y chrony
+----
++
+** 成功しない場合、運用チームに問い合わせて、サポートを要求してください。インスタンスへの昇格したアクセス権の要求が必要になる場合があります。
+
+パッケージの手動インストールが成功した場合や、引き続きサポートが必要な場合は、サポートチケットを申請してください。
+
+=== ディスクのフォーマットおよびマウント
+
+この手順では、`RTF_DOCKER_DEVICE` または `RTF_ETCD_DEVICE` 変数が提供されているブロックデバイスまたはディスクに対して次のタスクを実行します。
+
+. インスタンスで使用可能なブロックデバイスに値がマップされていることを確認するチェックを実行します。
+. ディスクがすでにマウントされている場合は、マウント解除します。
+. ディスクをフォーマットします。
+. マウントエントリを `/etc/fstab` ファイルに追加します。
+. `$DOCKER_MOUNT` または `$ETCD_MOUNT` の値に基づいてディレクトリを作成します。
+. 上記で作成した予期されるディレクトリにディスクをマウントします。
+
+=== RTF コンポーネントのインストール
+
+この手順では、Anypoint Platform に接続し、Runtime Fabric コンポーネントをクラスタにダウンロードしてインストールします。
+
+デプロイメントが時間制限内に完了できない場合、この手順でエラーが返されることがあります。
+
+----
+...
+[OK]
+Installing Runtime Fabric Agent. This may take several minutes...
+configmap "grafana-dashboards" deleted
+configmap "kapacitor-alerts" deleted
+Release "runtime-fabric" does not exist. Installing it now.
+The following deployments failed to become ready within the time limit:
+monitor ---
+Name:           monitor-79c7564b77-wb9c6
+Namespace:      rtf
+Node:           10.165.12.87/10.165.12.87
+Start Time:     Thu, 13 Dec 2018 20:23:59 +0000
+Labels:         app=monitor
+                pod-template-hash=3573120633
+Annotations:    checksum/config=4c4aac48d9cc8b24828b38ba0eb587840bc17b2449a54d593f74e2d58e5c12ae
+                kubernetes.io/psp=privileged
+                seccomp.security.alpha.kubernetes.io/pod=docker/default
+Status:         Running
+IP:             10.244.82.17
+Controlled By:  ReplicaSet/monitor-79c7564b77
+Containers:
+...
+<< More information displayed that describes the deployment manifest and stack trace >>
+----
+
+このエラーが確認された場合、次の操作を実行してください。
+
+ * アウトバウンド TCP ポート 5672 がインターネットに対して開かれていることを確認します。内部ネットワークで実行されているコントローラ VM からインターネット上のこのホスト名への接続が許可されている必要があります。
+ * インターネットへの接続を確立するには、TCP プロキシが必要になる場合があります。必要に応じて、ネットワークチームと連携して検証と確認を行ってください。必要な情報については、xref:install-port-reqs.adoc[ネットワークとポートの要件]ページを参照してください。

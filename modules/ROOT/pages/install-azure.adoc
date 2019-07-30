@@ -1,0 +1,153 @@
+= Azure での Runtime Fabric のインストール
+ifndef::env-site,env-github[]
+include::_attributes.adoc[]
+endif::[]
+:noindex:
+
+このトピックでは、Azure アカウントで Anypoint Runtime Fabric をインストールする方法について説明します。
+
+[WARNING]
+====
+Runtime Fabric をインストールする前に、インフラストラクチャがハードウェア、オペレーティングシステム、ネットワークの最小要件を満たしていることを確認してください。
+
+組織の運用チーム、ネットワークチーム、セキュリティチームは、これらの要件を確認する必要があります。xref:install-sys-reqs.adoc[「Anypoint Runtime Fabric のシステム要件」]およびxref:install-port-reqs.adoc[「Anypoint Runtime Fabric のネットワークとポートの要件」]を参照してください。
+====
+
+== 開始する前に
+
+Azure で Anypoint Runtime Fabric をインストールするには、次の要件を満たしていることを確認してください。
+
+* xref:install-create-rtf-arm.adoc[Runtime Manager で Runtime Fabric を作成]している。
+* Anypoint ユーザアカウントに「*Manage Runtime Fabrics (Runtime Fabric の管理)*」権限がある。
+* Azure ユーザに VM、ディスク、仮想ネットワーク、ネットワークセキュリティグループを作成するためのアクセス権がある。
+* Azure アカウントにインフラストラクチャをプロビジョニングする十分なクォータがある。
+* VM の公開 IP を使用することが組織で許可されていない場合、既存の仮想ネットワークを使用することが必要になる場合もあります。既存の仮想ネットワークを参照するように Azure Resource Manager テンプレートを変更します。
+
+== Mule ライセンスキーが Base64 でエンコードされていることの確認
+
+`generate-templates.sh` スクリプトを実行して、Azure Resource Manager テンプレートに Mule Enterprise ライセンスキーを追加します。これらのテンプレートは、必要なインフラストラクチャをプロビジョニングするために使用されます。
+
+[NOTE]
+Windows の場合、シェルターミナルエミュレータ (cygwin など) や Unix ベースのコンピュータが必要です。
+
+. 組織の Mule Enterprise ライセンスキーファイル (`license.lic`) を見つけ、必要に応じて Unix 環境に転送します。
+. ターミナルl/シェルを開き、`azure` サブディレクトリに移動します。
+. 以下をテキストエディタをコピーして実行します。
++
+----
+RTF_MULE_LICENSE='' \
+./generate-templates.sh
+----
+
+. ターミナルを使用して、Mule Enterprise ライセンスキーを base64 にエンコードし、コンテンツを `RTF_MULE_LICENSE` の値としてテキストエディタに貼り付けます。
++
+----
+base64 -w0 license.lic # Linux
+base64 -b0 license.lic # OSX
+----
+
+. テキストエディタからコマンドをコピーし、`azure` ディレクトリを参照するターミナルで実行します。
+. `azure` ディレクトリの `ARM-template-dev.json` および `ARM-template-prod.json` ファイルの出力を確認します。
+
+== インストール
+
+Runtime Fabric のインストールを開始するには、Runtime Manager から Azure Resource Manager テンプレートをダウンロードします。
+
+. Anypoint Platform から [Runtime Manager] に移動します。
+. *[Runtime Fabric]* を選択します。
+. 作成した Runtime Fabric をクリックします。その状態は [`Activating` (有効化中)] になっている必要があります。
+. *[Download files (ファイルをダウンロード)]* リンクをクリックします。
+. ファイルがダウンロードされたら、`rtf-install-scripts.zip` ファイルを展開します。
+
+`rtf-install-scripts\azure` ディレクトリには、以下のインストールファイルが含まれます。
+
+* `ARM-template-dev.template`: 開発設定要件のインフラストラクチャを記述する Azure Resource Manager テンプレート。
+* `ARM-template-prod.template`: 本番設定要件のインフラストラクチャを記述する Azure Resource Manager テンプレート。
+* `generate-templates.sh`: Mule Enterprise ライセンスダイジェストと初期化スクリプトを ARM テンプレートに挿入するために使用されるシェルスクリプト。このスクリプトは、Azure にデプロイするときに使用する JSON テンプレートを出力します。
+
+== ARM テンプレートをデプロイする
+
+ARM テンプレートを実行して、Azure アカウントでインフラストラクチャをプロビジョニングします。次の手順では、Azure Portal を介してテンプレートを実行する方法について説明します。
+
+[NOTE]
+VM をプロビジョニングするには、PEM ファイルとして非公開キーと公開キーが必要です。これは、SSH (Secure Shell) を介した VM へのセキュアなアクセスを有効にするのに必要です。
+
+. https://portal.azure.com[Azure Portal] にログインします。
+. *[リソースの作成]* に移動します。
+. ​[*Marketplace を検索*]​ 検索バーから「*テンプレートのデプロイ*」と入力します。
+. *[作成]* をクリックします。
+. *[エディターで独自のテンプレートをビルド]* を選択します。
+. エディタの上部のバーで、*[ファイルの読み込み]* をクリックし、`azure` ディレクトリから目的の Azure Resource Manager を選択します。  JSON ファイルを選択する必要があります。
+. エディタにファイルの内容が表示されたら、*[保存]* をクリックします。
+. サブスクリプションの選択内容、リソースグループ、および環境のリージョンを確認します。通常、個別のリソースグループを作成する必要があります。
+. *[設定]* で、以下を入力します。
++
+
+[%header,cols="3*a"]
+|===
+|変数 | 説明 | 例
+| `Public Key` | 公開キーの文字列が含まれます。これにより、関連付けられている非公開キーを使用して各 VM に SSH で接続できます。 | `ssh rsa ...`
+| `Anypoint Activation Data` | エンコードされた Runtime Fabric アクティベーションデータを指定します。このデータにアクセスするには、Runtime Manager で Runtime Fabric を表示します。 | NzdlMzU1YTktMzAxMC00OGE0LWJlMGQtMDdxxxx
+| `SSH User Name` | 各 VM への SSH 接続を確立するときに使用するユーザ名を指定します。 | `rtf-user`
+| `Controller Instance Type` | コントローラ VM ごとにプロビジョニングする Azure マシン種別を指定します。デフォルトは 2 コア、8 GB メモリです。 | `Standard_D2s_v3`
+| `Worker Instance Type` | ワーカー VM ごとにプロビジョニングする Azure マシン種別を指定します。デフォルトは 2 コア、16 GB メモリです。 | `Standard_E2s_v3`
+| `Virtual Network CIDR` | 仮想ネットワークに指定するアドレス範囲を指定します。必要に応じて、ネットワークスペシャリストにお問い合わせください。 | `172.31.0.0/16`
+| `Virtual Network Subnet` | 仮想ネットワーク内で使用するサブネットのアドレス範囲を指定します。必要に応じて、システム管理者にお問い合わせください。 | `172.31.3.0/28`
+| `Installer IP Address` | インストーラ VM として機能するコントローラ VM を割り当てる IP アドレスを指定します。これは、指定されたサブネット範囲内の使用可能なアドレスである必要があります。 | `172.31.3.4`
+| `Availability Set Update Domains` | 選択された Azure リージョンでサポートされる更新ドメインの数を指定します。 | `3`
+| `Availability Set Fault Domains` | 選択された Azure リージョンでサポートされる障害ドメインの数を指定します。 | `3`
+
+|===
+
++
+. ページの下部で *[使用条件]* を確認して選択し、*[購入]* をクリックします。
+
+クラスタを形成するすべてのサーバに Runtime Fabric がインストールされます。このプロセスは完了するまでに時間がかかります。完了すると、Runtime Manager に表示される Runtime Fabric の状況が [`Active` (有効)] に代わります。
+
+[NOTE]
+デフォルトでは、ARM テンプレートは各 VM の公開 IP アドレスを定義するように設定されています。必要に応じて、テンプレートを変更して `publicIPAddresses` を削除します。
+
+== インストールの進行状況の監視
+
+インストール中に進行状況を参照するには、各 VM の出力ログを確認します。
+
+. Azure Portal の左側のナビゲーションバーで、*[リソース グループ]* をクリックします。
+. Runtime Fabric インフラストラクチャをプロビジョニングするために使用するリソースグループを選択します。
+. *[デプロイ]* の *[概要]* ペインで、下のリンクをクリックします。このリンクは、`1 Deploying` のように表示されます。
+. デプロイメント名 *[Microsoft.Template]* をクリックします。
+
+インフラストラクチャとその状況のリストが表示されます。*[更新]* ボタンをクリックして、ペインと状況を更新します。
+
+インストール中に進行状況を参照するには、各 VM の出力ログを確認します。
+
+. VM へのシェル (SSH セッション) を開きます。
+. `/var/log/rtf-init.log` にある出力ログを確認します。
++
+----
+tail -f /var/log/rtf-init.log
+----
+
+各 VM の同じログを確認して、その進行状況を参照できます。
+
+インストールが正常に完了したら、`/opt/anypoint/runtimefabric/.state/init-complete` ファイルが作成されます。
+
+== 一般的なエラー
+
+Azure アカウントで設定されているポリシーや定義されているクォータによっては、プロビジョニングプロセスでエラーが発生することがあります。ARM テンプレートは、組織で設定されているポリシーに合わせて変更できます。必要に応じて、ネットワーク管理者にお問い合わせください。
+
+* *最大コアクォータの超過:* Azure サポートにチケットを登録して、デプロイメントリージョンのクォータを増やします。十分なクォータがあると思われる場合、増加しているクォータで正しいリージョンが選択されていることを確認します。または、アカウントに固有になるようにリソースグループ名を変更します。
+* *ネットワークポリシー違反:* デフォルトでは、Azure リソーステンプレートで定義されるネットワークセキュリティグループは、サブネットレベルおよび各 VM の NIC で関連付けられます。会社のポリシーによっては、テンプレートを調整して関連付けを削除することが必要になる場合もあります。
+
+
+== オペレーションセンターへのアクセス
+
+インストールが正常に完了したら、オペレーションセンターにログインして Runtime Fabric インフラストラクチャの状況を表示します。オペレーションセンターへのアクセスとオペレーションセンターのユーザ名とパスワードの決定については、xref:using-opscenter.adoc[「Anypoint Runtime Fabric でのオペレーションセンターの使用」]を参照してください。
+
+== インストール後の設定
+
+Anypoint Runtime Fabric にアプリケーションをデプロイする前に、次の手順を実行する必要があります。
+
+* xref:associate-environments.adoc[Anypoint Runtime Fabric でのビジネスグループと環境の関連付け]
+* xref:enable-inbound-traffic.adoc[Anypoint Runtime Fabric でのインバウンドトラフィックの有効化]
+* xref:runtime-fabric-logs.adoc[Anypoint Runtime Fabric でのログ転送の設定]
+* xref:configure-alerting.adoc[Anypoint Runtime Fabric でのアラートの設定]

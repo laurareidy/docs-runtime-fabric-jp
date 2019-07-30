@@ -1,0 +1,70 @@
+= Runtime Fabric でのアラートの設定
+ifndef::env-site,env-github[]
+include::_attributes.adoc[]
+endif::[]
+
+Runtime Fabric では、既存の SMTP サーバを介してアラートを送信できます。Runtime Fabric には、システムの健全性が低下したときに通知を送信するアラート機能があります。
+
+== 手順
+
+. ターミナルを使用して、コントローラ VM へのシェル/SSH 接続を開きます。
+. 次の内容が含まれる `alert-smtp.yaml` という名前のファイルを作成します。
++
+----
+kind: smtp
+version: v2
+metadata:
+  name: smtp
+spec:
+  host: <smtp host>
+  port: <smtp port>
+  username: <username>
+  password: <password>
+---
+kind: alerttarget
+version: v2
+metadata:
+  name: email-alerts
+spec:
+  email: <email>
+----
+
+. 環境に固有の次の値を使用して、`alert-smtp.yaml` のコンテンツを変更します。
++
+[%header,cols="2*a"]
+|===
+|キー | 説明
+|`smtp.host` | SMTP サーバのエンドポイント。
+|`<smtp port>` | SMTP サーバに接続するために使用されるポート。(デフォルトは 465)。
+|`<username>` | SMTP サーバに接続するときに使用するユーザ名。
+|`<password>` | SMTP サーバに接続するときに使用するパスワード。
+|`<email>` | 受信者のメールアドレス。
+
+|===
++
+. コントローラ VM で次のコマンドを実行します。
+----
+$ gravity resource create -f alert-smtp.yaml
+----
+
+これで、アラートは STMP サーバを介して送信するように設定されます。
+
+== 組み込みアラート
+
+次の表は、Anypoint Runtime Fabric によって提供されるデフォルトのアラートのいくつかを示しています。
+
+[%header,cols="2*a"]
+|===
+|アラート | 説明
+| 高い CPU 使用量 | 使用量が 75% を超えたときに警告を送信します。使用量が 90% を超えたときに重大なエラーをトリガします。
+| 高いメモリ使用量 | 使用量が 80% を超えたときに警告を送信します。使用量が 90% を超えたときに重大なエラーをトリガします。
+| 高いディスク領域使用量 | 使用量が 80% を超えたときに警告を送信します。使用量が 90% を超えたときに重大なエラーをトリガします。
+| 高い inode 使用量 | 使用量が 90% を超えたときに警告を送信します。使用量が 95% を超えたときに重大なエラーをトリガします。
+| etcd インスタンスの健全性 | etcd マスタが 5 分以上アクセスできない場合にエラーを送信します。
+|===
+
+
+== 関連情報
+
+* xref:runtime-fabric-logs.adoc[Anypoint Runtime Fabric でのログ転送の設定]
+* xref:deploy-to-runtime-fabric.adoc[Runtime Fabric に Mule アプリケーションをデプロイする]
