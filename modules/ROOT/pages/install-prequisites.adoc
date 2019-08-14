@@ -1,0 +1,65 @@
+= Anypoint Runtime Fabric ワークフロー
+ifndef::env-site,env-github[]
+include::_attributes.adoc[]
+endif::[]
+
+このトピックでは、Anypoint Runtime Fabric をインストール、設定、使用するためのワークフローの概要について説明します。Anypoint Runtime Fabric を初めて使用する場合は、このトピックを参照してください。
+
+Runtime Fabric を設定するには、次の手順に従います。
+
+. インフラストラクチャをプロビジョニングし、設定する
+. Runtime Fabric をインストールし、アクティブ化する
+. xref:runtime-fabric-logs.adoc[ログ転送の設定]
+. xref:configure-alerting.adoc[アラートを設定する]
+. xref:associate-environments.adoc[環境に Runtime Fabric を関連付ける]
+. xref:enable-inbound-traffic.adoc[インバウンドトラフィックを有効にする]
+
+
+== システムおよびネットワーク要件の確認
+
+Anypoint Runtime Fabric を使用する前に、環境のリソース要件について、意思決定を行う必要があります。また、環境内でさまざまなポートをどのように設定する必要があるかについても理解する必要があります。
+
+* xref:install-sys-reqs.adoc[「Anypoint Runtime Fabric のシステム要件」]では、サポートされる設定と、必要なリソースについて説明します。
+* xref:install-port-reqs.adoc[「Anypoint Runtime Fabric のネットワークポート要件」]では、Runtime Fabric のインストールと実行に必要なポートについて説明します。
+
+== Runtime Manager での Runtime Fabric の作成
+
+Anypoint Runtime Fabric のインストールを開始する前に、Runtime Manager を使用して Runtime Fabric を作成する必要があります。xref:install-create-rtf-arm.adoc[「Runtime Manager を使用した Runtime Fabric の作成」]を参照してください。Runtime Fabric を作成したら、次の操作を実行する必要があります。
+
+* インストールスクリプトを含む ZIP ファイルをダウンロードします。ZIP ファイルには、インフラストラクチャプロバイダに固有のスクリプトが含まれます。
+* Runtime Fabric のアクティベーションデータを記録します。
+
+
+環境に Runtime Fabric をインストールする前に、Runtime Manager を使用して Runtime Fabric を作成します。これにより、次のことができます。
+
+* Runtime Fabric の名前を指定します。
+* インストールスクリプトをダウンロードします。
+* インストール中に使用された Runtime Fabric のアクティベーションデータを記録します。
+
+== Runtime Fabric のインストール
+
+リソース要件を決定し、Runtime Manager で Runtime Fabric を作成したら、リソースをプロビジョニングし、Runtime Fabric をインストールします。次の環境がサポートされています。
+
+* xref:install-aws.adoc[AWS での Runtime Fabric のインストール]
+* xref:install-azure.adoc[Azure での Runtime Fabric のインストール]
+* xref:install-manual.adoc[Runtime Fabric の手動インストール]
+
+== Runtime Fabric の設定
+
+Runtime Fabric をインストールしたら、次のトピックの説明に従って、追加の設定手順を実行します。
+
+* xref:enable-inbound-traffic.adoc[Anypoint Runtime Fabric のインバウンドトラフィックの有効化]
+* xref:runtime-fabric-logs.adoc[Anypoint Runtime Fabric でのログ転送のセットアップ]
+* xref:configure-alerting.adoc[Anypoint Runtime Fabric でのアラートのセットアップ]
+* xref:using-opscenter.adoc[Anypoint Runtime Fabric でのオペレーションセンターへのアクセス]
+
+== アプリケーションをデプロイする
+
+Runtime Fabric をインストールし、設定したら、Mule アプリケーションを環境にデプロイします。
+
+* xref:deploy-resource-allocation.adoc[「Runtime Fabric でのアプリケーションリソース割り当ての決定」]では、アプリケーションで必要なリソースを決定する方法について説明します。
+* xref:deploy-to-runtime-fabric.adoc[「Runtime Fabric への Mule アプリケーションのデプロイ」]では、Runtime Fabric にアプリケーションをデプロイする方法について説明します。
+
+このトピックでは、Anypoint Runtime Fabric インストールプロセスの概要と、インストーラの機能について説明します。
+
+Anypoint Runtime Fabric は、一連の VM で Mule アプリケーションと API ゲートウェイを実行するために作成されたコンテナサービスです。Anypoint Runtime Fabric インストーラは、必要なユーザ操作を最小限にするように最適化されています。ただし、インストール後に完了する重要な設定手順があります。

@@ -1,0 +1,147 @@
+= Maven を使用した Runtime Fabric へのアプリケーションのデプロイ (Mule 3.x)
+
+Runtime Fabric は、Maven を使用した Mule アプリケーションの管理およびデプロイをサポートしています。このトピックの情報は、Mule Runtime バージョン 3.x へのアプリケーションのデプロイに固有のものです。
+
+[NOTE]
+アプリケーションを Runtime Fabric にデプロイするには、そのアプリケーションを Exchange で公開する必要があります。xref:studio::export-to-exchange-task.adoc[「Exchange へのプロジェクトのパブリッシュ」]で説明されているように、Studio を使用できます。または、Mule Maven プラグインを使用します。詳細は、xref:exchange::to-publish-assets-maven.adoc[「Maven を使用した Exchange アセットのパブリッシュとデプロイ」]を参照してください。
+
+
+== 前提条件
+
+Maven を使用して Mule アプリケーションをデプロイする前に、Maven、pom.xml ファイルの管理、および Maven プラグインの操作に慣れておく必要があります。
+
+アプリケーションを Runtime Fabric にデプロイする前に、必要なリソースの数を理解しておく必要があります。詳細は、xref:runtime-fabric::deploy-resource-allocation.adoc[「Anypoint Runtime Fabric でのリソース割り当て」]を参照してください。
+
+== Mule Maven プラグインを Mule プロジェクトに追加する
+
+Maven を使用して Mule アプリケーションをデプロイするには、Mule Maven プラグインをアプリケーションプロジェクトに追加する必要があります。次の連動関係を追加し、プロジェクトにプラグインを追加します。
+
+----
+<plugin>
+  <groupId>org.mule.tools.maven</groupId>
+  <artifactId>mule-maven-plugin</artifactId>
+  <version>2.3.2</version>
+  <extensions>true</extensions>
+</plugin>
+----
+
+[NOTE]
+`<extensions>true</extensions>` を使用してこのプラグインの拡張を有効にすることが重要です。
+
+プラグインに加えて、`pluginRepositories` も Mule アプリケーションプロジェクトに追加する必要があります。
+
+----
+<pluginRepositories>
+    <pluginRepository>
+        <id>mule-public</id>
+        <url>https://repository.mulesoft.org/nexus/content/repositories/releases</url>
+    </pluginRepository>
+</pluginRepositories>
+----
+
+これにより、プロジェクトで Mule Maven プラグインが有効になります。
+
+== Runtime Fabric へのデプロイ
+
+. Mule Maven プラグインが pom.xml ファイルに追加されていることを確認します。
+. `<plugin>` 要素で、次に示すように Runtime Fabric デプロイメントの設定を追加します。
++
+----
+<plugin>
+  ...
+    <configuration>
+        <runtimeFabricDeployment>
+            <uri>https://anypoint.mulesoft.com</uri>
+            <muleVersion>${mule.version}</muleVersion>
+            <username>${username}</username>
+            <password>${password}</password>
+            <applicationName>${runtime.fabric.application.name}</applicationName>
+            <environment>${environment}</environment>
+            <provider>${provider}</provider>
+            <properties>
+                <key>value</key>
+            </properties>
+            <deploymentSettings>
+                <cpuReserved>500m</cpuReserved>
+                <memoryReserved>800Mi</memoryReserved>
+            </deploymentSettings>
+        </runtimeFabricDeployment>
+    </configuration>
+
+</plugin>
+----
++
+この例ではプレースホルダ値を使用しています。Runtime Fabric インストールに固有の値を使用して各値を設定します。
+
+. プロジェクトのフォルダのコマンドラインから、アプリケーションをパッケージしてデプロイゴールを実行します。
++
+----
+> mvn clean package deploy -DmuleDeploy
+----
+
+== Runtime Fabric への再デプロイ
+
+アプリケーションを再デプロイするには、デプロイしたときと同じコマンドを実行します。Runtime Fabric は、デプロイしたアプリケーションを書き込み直します。
+
+== Runtime Fabric デプロイメントリファレンス
+
+[%header%autowidth.spread,cols="a,a"]
+|===
+|パラメータ | 説明
+|runtimeFabricDeployment | 最上位要素を指定します。
+| uri | Anypoint Platform URI を指定します。 +
+設定しないと、デフォルト値の `+https://anypoint.mulesoft.com+` が使用されます。
+| muleVersion | Runtime Fabric インスタンスにインストールされている Mule Runtime バージョンを指定します。 +
+この値がアプリケーションで最小限必要な Mule Runtime バージョン以上であることを確認します。
+| username (ユーザ名) | Anypoint Platform ユーザ名を指定します。
+| password (パスワード) | Anypoint Platform パスワード を指定します。
+| applicationName | Exchange でデプロイされるアプリケーションの名前を指定します。 +
+この名前は、デプロイされるアプリケーションのドメインの一部です。
+| businessGroup (省略可能) | アプリケーションをデプロイするビジネスグループを指定します。指定しない場合、デフォルトでマスタ組織の名前が使用されます。
+| skip (スキップ) | (ブール値) true に設定すると、プラグインデプロイメントゴールをスキップします。デフォルト値は `false` です。
+| target (対象) | アプリケーションがデプロイされる Runtime Fabric 対象名を指定します。
+| provider (プロバイダ) | プロバイダ種別を指定します。Runtime Fabric では `MC` の値のみがサポートされています。
+| 環境 | アプリケーションをデプロイする Anypoint Platform 環境を指定します。
+| properties (省略可能) | 最上位要素を指定します。 +
+Mule アプリケーションのプロパティを設定するには、<properties> 要素を使用します。
+
+
+<properties> +
+  <key>値</key> +
+</properties>
+
+
+次に例を示します。
+
+<properties> +
+  <http.port>8081</http.port> +
+</properties>
+| replicationFactor (省略可能) | アプリケーションで作成されるインスタンスの数を指定します。 +
+デフォルト値は `1` です。
+| publicUrl (省略可能) | デプロイされるアプリケーションの URL を指定します。
+| lastMileSecurity (省略可能) | このアプリケーションによって復号化される HTTPS 接続を転送するために Last-Mile セキュリティを有効にします。 +
+このためには SSL 証明書を Mule アプリケーションに含む必要があり、より多くの CPU リソースも必要です。デフォルト値は `false` です。
+| clusteringEnabled (省略可能) | アプリケーションの各レプリカで Mule のクラスタ化を有効にします。アプリケーションの少なくとも 2 つのレプリカが必要です。デフォルト値は `false` です。
+| memoryReserved (省略可能) | アプリケーションの各レプリカに割り当てるメモリ量を定義します。デフォルト値は `700MB` です。 +
+
+次に例を示します。
+
+<deploymentSettings> +
+    <memoryReserved>100Mi</memoryReserved> +
+</deploymentSettings> +
+
+これにより、100MB のメモリが各レプリカに設定されます。
+
+| cpuReserved (省略可能) | アプリケーションの各レプリカに割り当てるコア数を指定します。デフォルト値は `0.5 vCores` です。 +
+
+次に例を示します。
+
+<deploymentSettings> +
+    <cpuReserved>500m</cpuReserved> +
+</deploymentSettings> +
+
+これにより、各レプリカで 0.5 vCore が設定されます。
+| server (省略可能) | Anypoint Platform ログイン情報が含まれる Maven サーバを指定します。このプロパティは、Maven `settings.xml` ファイルに保存されたログイン情報を使用する場合のみ必要です。注意: これは Mule サーバ名ではありません。
+| skipDeploymentVerification | 注意: この機能は、プラグインバージョン 2.3.2 以降でのみ使用できます。 +
+(ブール値)。true に設定すると、デプロイされるアプリケーションの検証をスキップします。デフォルト値は `false` です。
+|===

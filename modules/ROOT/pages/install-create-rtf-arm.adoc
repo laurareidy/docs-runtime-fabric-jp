@@ -1,0 +1,41 @@
+= Runtime Fabric インストールの開始
+ifndef::env-site,env-github[]
+include::_attributes.adoc[]
+endif::[]
+
+Anypoint Runtime Fabric をインストールするには、まず Runtime Manager を使用して Runtime Fabric を作成します。
+
+== 開始する前に
+
+Anypoint Runtime Fabric をインストールする前に、次のトピックを参照して Runtime Fabric をインストールする準備が整っていることを確認します。
+
+* xref:architecture.adoc[Runtime Fabric アーキテクチャ]
+* xref:install-sys-reqs.adoc[Anypoint Runtime Fabric のシステム要件の確認]
+* xref:install-port-reqs.adoc[Anypoint Runtime Fabric のネットワークポート要件]
+
+[NOTE]
+以下のように Runtime Manager に *[Runtime Fabric]* タブが表示されない場合、各自のアカウントで Anypoint Runtime Fabric が有効になるようにカスタマーサクセスマネージャに依頼してください。
+
+== Runtime Manager を使用して Runtime Fabric を作成する
+
+. Anypoint Platform から [Runtime Manager] を選択します。
+. *[Runtime Fabric]* をクリックします。
+. *[Create Runtime Fabric (Runtime Fabric を作成)]* をクリックします。
+. Runtime Fabric の名前を指定します。
+. *[Create (作成)]* をクリックします。
+
+[NOTE]
+Runtime Fabric の作成後、Runtime Manager には、対応するアクティベーションデータが表示されます。後でインフラストラクチャのインストール時に使用されるこのデータを記録します。
+
+image::runtime-fabric-arm.png[]
+
+Runtime Manager の初期設定では、Runtime Fabric がアクティベーション状態であることが示されます。これは、Runtime Fabric がインストールされて、Runtime Manager に接続されると変わります。
+
+== インフラストラクチャへの Runtime Fabric のインストール
+
+Runtime Manager で Runtime Fabric を作成したら、Runtime Fabric をインフラストラクチャにインストールします。各自のインフラストラクチャに対応する次のリンクをクリックしてください。
+
+* xref:install-aws.adoc[AWS での Runtime Fabric のインストール]
+* xref:install-azure.adoc[Azure での Runtime Fabric のインストール]
+* xref:install-manual.adoc[Runtime Fabric の手動インストール]
+

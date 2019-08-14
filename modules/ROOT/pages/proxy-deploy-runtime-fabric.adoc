@@ -1,0 +1,48 @@
+= Runtime Fabric への API プロキシのデプロイ
+ifndef::env-site,env-github[]
+include::_attributes.adoc[]
+endif::[]
+
+Runtime Fabric では、API プロキシを Mule Runtime にデプロイできます。
+
+== 開始する前に
+
+API プロキシを Mule Runtime にデプロイするには、アカウントに次の権限が必要です。
+
+* 「Manage APIs Configuration (API 設定の管理)」権限
+* 「Deploy API Proxies (API プロキシのデプロイ)」権限
+
+API Gateway バージョン 3.8.7、3.9.1、または 4.1.2 を使用していることを確認する必要があります。
+
+== 手順
+
+. Anypoint Platform から [API Manager] を選択します。
+. *[Manage API (API を管理)]*、*[Manage API from Exchange ([Exchange (交換)] から API を管理)]* の順にクリックします。
++
+image::runtime-fabric-1.png[]
+
+. *[API Configurations (API 設定)]* の下で適切な情報を入力します。
+
+. *[Proxy deployment target (プロキシデプロイメント対象)]* で *[Runtime Fabric]* を選択していることを確認します。
+
+. *[Save (保存)]* をクリックします。
++
+*[Deployment Configuration (デプロイメント設定)]* セクションで、次の設定を定義します。
++
+* *[Runtime Fabric target (Runtime Fabric 対象)]* を選択します。
+* *[Runtime version (ランタイムバージョン)]* を選択します。
+** プロキシの名前を入力します。
++
+image::runtime-fabric-2.png[]
+
+== 結果
+
+API Manager は API プロキシを Runtime Fabric にデプロイします。デプロイ中は、次のようなデプロイメントの状況ダイアログが表示されます。
+
+image::runtime-fabric-3.png[]
+
+デプロイ後は、デプロイした API プロキシを Runtime Manager から管理できます。
+
+== 関連情報
+
+* xref:deploy-to-runtime-fabric.adoc[Runtime Fabric に Mule アプリケーションをデプロイする]

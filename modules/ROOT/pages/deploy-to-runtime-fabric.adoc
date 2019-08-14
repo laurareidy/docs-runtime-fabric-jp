@@ -1,0 +1,92 @@
+= Runtime Fabric に Mule アプリケーションをデプロイする
+ifndef::env-site,env-github[]
+include::_attributes.adoc[]
+endif::[]
+
+Mule アプリケーションを Anypoint Runtime Fabric にデプロイし、デプロイされたアプリケーションのインバウンドトラフィックをテストします。
+
+== 開始する前に
+
+アプリケーションを Anypoint Runtime Fabric にデプロイする前に、次のことを実行する必要があります。
+
+* Anypoint Runtime Fabric をインストールして設定する。詳細は、xref:install-create-rtf-arm.adoc[「Runtime Fabric インストールの開始」]を参照してください。
+* Runtime Fabric が環境に関連付けられていることを確認する。
+* アプリケーションのリソース割り当て要件を決定する。詳細は、xref:deploy-resource-allocation.adoc[「Runtime Fabric でのアプリケーションリソース割り当ての決定」]を参照してください。
+* Anypoint ユーザが Runtime Fabric にアプリケーションをデプロイするには、「*Exchange Contributors (Exchange コントリビュータ)*」権限が必要な場合がある。
+
+== アプリケーションをデプロイする
+
+アプリケーションをデプロイするには、次の手順を実行します。
+
+. https://anypoint.mulesoft.com[Anypoint Platform] にサインインします。
+. *Runtime Manager* に移動し、*[Applications (アプリケーション)]* セクションを選択します。
+. *[Deploy application (アプリケーションをデプロイ)]* をクリックします。
+. *[Application Name (アプリケーション名)]* 項目で、アプリケーションに名前を付けます。
++
+名前に使用できるのは、小文字の英数字、ハイフン、およびアンダースコアのみです。
+. *[Choose File (ファイルを選択)]* をクリックしてデプロイするアプリケーションを選択し、次のいずれかのオプションを選択します。
++
+* *Import file from Exchange (Exchange からファイルをインポート)*: Anypoint Exchange に保存されている Mule アプリケーションを選択可能。
+* *Upload file (ファイルをアップロード)*: ファイルシステムから Mule アプリケーションファイルを選択可能。
++
+. *[Deployment Target (デプロイメント対象)]* ドロップダウンリストから、Runtime Fabric の名前を選択します。
++
+_結果_: *[Deployment Target (デプロイメント対象)]*、*[Ingress (イングレス)]*、および *[Properties (プロパティ)]* タブが表示されます。これらのタブを使用して、アプリケーションの追加設定情報を入力します。
+
+. *[Deployment Target (デプロイメント対象)]* タブを選択します。
++
+このタブには、上記で選択したデプロイメント対象の名前と種別が表示されます。
+
+. *[Runtime Version (ランタイムバージョン)]* ドロップダウンリストから、Mule Runtime エンジンバージョンを選択します。
+
+. デプロイするアプリケーションのレプリカまたはインスタンスの数を選択します。
++
+[NOTE]
+高可用性には、少なくとも 2 つのレプリカが必要です。
+.. アプリケーションの各レプリカで Mule のクラスタ化を有効にするには、*[Run in Runtime Clustering Mode (ランタイムのクラスタ化モードで実行)]* を有効にします。
+. *[Cores (コア)]* の数と *[Memory (メモリ)]* の量を指定し、スライダを適切な値に調整してアプリケーションの各レプリカに割り当てます。
++
+アプリケーションを Runtime Fabric にデプロイするためにxref:deploy-resource-allocation.adoc[リソース割り当てを決定]する方法を確認してください。
+
+. アプリケーションのネットワーク設定を指定します。
+
+.. *[Ingress (イングレス)]* タブをクリックします。
+.. 次のオプションを有効または無効にします。
++
+* *Enable inbound traffic to this application (このアプリケーションへのインバウンドトラフィックを有効化)*: 受信 HTTP 要求をこのアプリケーションで処理可能にする。アプリケーションがポート 8081 で接続を受け入れるように設定されていることを確認します。
+* *Enable Last-Mile security (Last-Mile セキュリティを有効化)*: このアプリケーションによって復号化される HTTPS 接続を転送する。このためには SSL 証明書を Mule アプリケーションに含む必要があり、より多くの CPU リソースも必要です。
+
+. アプリケーションプロパティを設定します。
+.. *[Properties (プロパティ)]* タブをクリックします。
+.. アプリケーションプロパティをキーと値のペアとして指定します。
+
+. *[Deploy Application (アプリケーションをデプロイ)]* をクリックします。
++
+*[Deploy Application (アプリケーションをデプロイ)]* ボタンが無効な場合、有効な Mule アプリケーションファイルをアップロードしていることを確認します。また、選択した Mule Runtime エンジンのバージョンがアプリケーションで使用されているバージョンと同じであることも確認します。
+
+_結果_: Runtime Manager にアプリケーションのデプロイメントを確認するステータスメッセージが表示されます。デプロイメントが開始されると、デプロイメントの状況を参照できるアプリケーションリストページが表示されます。
+
+新しくデプロイされたアプリケーションの場合、最初の状況は *[Starting (開始中)]* と表示されます。アプリケーションが成功した場合、状況は *[Started (開始済み)]* に更新されます。アプリケーションの状況を監視し、正常に開始されたことを確認します。
+
+== 検証
+
+デプロイされたアプリケーションのインバウンドトラフィックをテストするため、ドメインに設定されたホストヘッダーと共に IP アドレスを使用して要求を送信できます。ホストヘッダーは、アプリケーション URL の構造によって異なります。
+
+*  _{app-name}.domain.com_  の形式のアプリケーション URL は、要求ヘッダー形式 `Host: {app-name}.domain.com` を使用。検証する cURL コマンドの例は `curl -Lvk -XGET https://{ip-address}/{path} -H 'Host: {app-name}.domain.com'` です。
+* domain.com/{app-name}_ のアプリケーション URL は、要求ヘッダー形式 `Host: domain.com` を使用。検証する cURL コマンドの例は `curl -Lvk -XGET https://{ip-address}/{app-name}/{path} -H 'Host: domain.com'` です。
+
+== 一般的な問題
+
+アプリケーションが数分間 *[Starting (開始中)]* 状況のままの場合、指定したリソース量が少なすぎることが原因の可能性があります。0.3 コア以下を選択した場合、アプリケーションの起動に数分かかることは一般的です。
+
+起動時にアプリケーションでエラーが発生した場合、デプロイメントが停止し、状況は *[Failed (失敗)]* に更新されます。アプリケーションをクリックして右サイドバーを表示すると、エラーメッセージのプレビューが表示されます。メッセージ全体を表示するには、*[Manage Application (アプリケーションを管理)]* ボタンをクリックします。詳細は、オペレーションセンターでアプリケーションログを表示するか、サードパーティのログプロバイダを使用して確認できます。
+
+Runtime Fabric にデプロイメントで使用可能な CPU コアまたはメモリがない場合、`insufficient resources` を示すエラーメッセージが返されます。複数のレプリカを選択する場合、指定されたコアとメモリが _各_ レプリカに適用されることを理解することが重要です。
+
+既存の実行中のアプリケーションへの再デプロイメントが失敗した場合、以前のアプリケーションは実行中で有効なままになります。この動作により、ダウンタイムゼロのアプリケーションの再デプロイメントが可能になります。Runtime Manager では、失敗の解決に役立つ失敗したデプロイメントの詳細と状況が報告されます。
+
+== 関連情報
+
+* xref:deploy-resource-allocation.adoc[Runtime Fabric でのアプリケーションリソース割り当ての決定]
+* xref:runtime-manager::developing-applications-for-cloudhub.adoc[CloudHub に Mule アプリケーションをデプロイする]
+* xref:runtime-manager::deploying-to-your-own-servers.adoc[ハイブリッド環境への Mule アプリケーションのデプロイ]

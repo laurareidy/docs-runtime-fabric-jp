@@ -1,0 +1,45 @@
+= ビジネスグループと環境の Anypoint Runtime Fabric への関連付け
+ifndef::env-site,env-github[]
+include::_attributes.adoc[]
+endif::[]
+
+アプリケーションまたは API ゲートウェイを Anypoint Runtime Fabric にデプロイする前に、Runtime Fabric を 1 つ以上の Anypoint Platform 環境に関連付ける必要があります。デプロイする環境でこれを実行するまで、Mule アプリケーションをデプロイするときに、デプロイメント対象として Runtime Fabric を選択することはできません。
+
+ビジネスグループまたは環境を Runtime Fabric に関連付ける手順は、次のとおりです。
+
+. Anypoint Platform から *[Runtime Manager]* を選択します。
+. 左サイドバーで、*[Runtime Fabric]* セクションを選択します。
+. インストール中に使用された名前に基づいて、Runtime Fabric を選択します。
+. *[Associated Environments (関連付けられた環境)]* タブから、この Runtime Fabric に関連付ける環境を選択します。
+. *[Apply (適用)]* をクリックして変更を確認します。
+
+== 本番設定
+
+本番環境を選択すると、Runtime Fabric が本番設定で動作するように設定されていることを確認するダイアログが表示されます。これには、適切なハードウェア設定、ログ転送、アラート、および考えられる障害モードに関する情報が含まれます。
+
+[IMPORTANT]
+Runtime Fabric で本番アプリケーションを運用およびデプロイする前に、これらすべての手順が完了していることを確認してください。
+
+== ビジネスグループ全体で共有する
+
+Runtime Fabric を組織のビジネスグループと共有できます。これにより、他のビジネスグループが 1 つの Runtime Fabric にアプリケーションをデプロイできます。この機能を使用するには、Runtime Fabric が登録されている組織の範囲にビジネスグループが含まれている必要があります。
+
+ビジネスグループ全体で Runtime Fabric を共有する手順は、次のとおりです。
+
+. Anypoint Platform から *[Runtime Manager]* を選択します。
+. 左サイドバーで、*[Runtime Fabric]* タブを選択します。
+. 管理する Runtime Fabric を選択します。
+. *[Associated Environments (関連付けられた環境)]* タブで、*[Add business group (ビジネスグループを追加)]* をクリックします。
+. この Runtime Fabric を共有するビジネスグループを選択します。
++
+ビジネスグループの環境のリストが表示されます。
+
+. この Runtime Fabric に関連付けるビジネスグループの環境を選択します。
+. *[Apply (適用)]* をクリックして変更を確認します。
+
+
+== 関連情報
+
+* xref:enable-inbound-traffic.adoc[Runtime Fabric へのインバウンドトラフィックの有効化]
+* xref:runtime-fabric-logs.adoc[Anypoint Runtime Fabric でのログ転送の設定]
+* xref:configure-alerting.adoc[Anypoint Runtime Fabric でのアラートの設定]
