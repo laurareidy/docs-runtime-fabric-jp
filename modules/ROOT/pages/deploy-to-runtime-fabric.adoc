@@ -72,8 +72,8 @@ _結果_: Runtime Manager にアプリケーションのデプロイメントを
 
 デプロイされたアプリケーションのインバウンドトラフィックをテストするため、ドメインに設定されたホストヘッダーと共に IP アドレスを使用して要求を送信できます。ホストヘッダーは、アプリケーション URL の構造によって異なります。
 
-*  _{app-name}.domain.com_  の形式のアプリケーション URL は、要求ヘッダー形式 `Host: {app-name}.domain.com` を使用。検証する cURL コマンドの例は `curl -Lvk -XGET https://{ip-address}/{path} -H 'Host: {app-name}.domain.com'` です。
-* domain.com/{app-name}_ のアプリケーション URL は、要求ヘッダー形式 `Host: domain.com` を使用。検証する cURL コマンドの例は `curl -Lvk -XGET https://{ip-address}/{app-name}/{path} -H 'Host: domain.com'` です。
+*  _{app-name}.domain.com_  の形式のアプリケーション URL は、要求ヘッダー形式 `Host: {app-name}.domain.com` を使用。検証する cURL コマンドの例は `curl -Lvk -XGET https://{ip-address}/{path} -H "Host: {app-name}.domain.com"` です。
+* domain.com/{app-name}_ のアプリケーション URL は、要求ヘッダー形式 `Host: domain.com` を使用。検証する cURL コマンドの例は `curl -Lvk -XGET https://{ip-address}/{app-name}/{path} -H "Host: domain.com"` です。
 
 == 一般的な問題
 

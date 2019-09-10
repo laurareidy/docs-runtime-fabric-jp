@@ -19,7 +19,7 @@ endif::[]
 * 必要なディスクが各 VM のブロックデバイスとしてリストされている。ディスクをマウントまたはフォーマットしないでください。
 * 必要なポートが開いており、ホスト名がxref:install-port-reqs.adoc[ネットワーク要件]のページで示されているとおりにホワイトリストに登録されている。
 
-== Mule ライセンスキーが Base64 でエンコードされていることの確認
+== Mule ライセンスキーの Base64 でのエンコード
 
 Runtime Fabric をインストールするには、Mule ライセンスキーが Base64 でエンコードされている必要があります。
 
@@ -41,15 +41,13 @@ base64 -b0 license.lic
 
 === Windows
 
-Windows でライセンスファイルをエンコードするには、シェルターミナルエミュレータ (cygwin など) や Unix ベースのコンピュータにアクセスして、次の手順を実行します。
+Windows でライセンスファイルをエンコードするには、シェルターミナルエミュレータ (cygwin など) や Unix ベースのコンピュータを使用して、次の手順を実行します。
 
 . 組織の Mule Enterprise ライセンスキーファイル (`license.lic`) を見つけ、必要に応じて Unix 環境に転送します。
-. ターミナルl/シェルを開き、`azure` サブディレクトリに移動します。
-. 実行前に Mule Enterprise ライセンスを簡単に追加できるように、テキストエディタに以下のコマンドをコピーします。
+. 次のコマンドを実行して、ライセンスキーを Base64 でエンコードします。
 +
 ----
-RTF_MULE_LICENSE='' \
-./generate-templates.sh
+base64 -w0 license.lic
 ----
 
 == インストール中に実行される操作
@@ -102,7 +100,7 @@ mkdir -p ./rtf-install-scripts && unzip rtf-install-scripts.zip -d ./rtf-install
 
 [NOTE]
 ディスクへのブロックデバイスのパスを特定するには、VM で `lsblk` コマンドを使用します。
-Mule ライセンスキーを Base64 でエンコードするには、`base64 -w0 license.lic` コマンドを使用します。  (OSX では `base64 -b0 license.lic`)。
+Mule ライセンスキーを Base64 でエンコードするには、上記の「Mule ライセンスキーの Base64 でのエンコード」の手順を参照してください。
 
 === 省略可能な変数
 
@@ -112,7 +110,7 @@ Mule ライセンスキーを Base64 でエンコードするには、`base64 -w
 |===
 |パラメータ | 説明 | 例
 | `RTF_HTTP_PROXY` | アウトバウンド HTTP 要求を転送する HTTP プロキシサーバのホスト名およびポート。 | `1.1.1.1:80`
-| `RTF_TCP_PROXY` | アウトバウンド TCP 要求を転送する TCP プロキシサーバのホスト名およびポート。 | `1.1.1.2:800`
+| `RTF_MONITORING_PROXY` | SOCKS5 プロキシサーバがメトリクスとログを Anypoint Monitoring に転送するためのホスト名とポート、および省略可能なユーザ名とパスワード。 | `user:pass@1.1.1.2:800`
 | `RTF_NO_PROXY` | プロキシをバイパスする必要があるホストのカンマ区切りリスト。 | `1.1.1.1,no-proxy.com`
 | `RTF_SERVICE_UID` | 各 Runtime Fabric サービスを実行するユーザ ID を表す整数。「planet」という名前のユーザを作成するデフォルトの動作を上書きします。 | `1000`
 | `RTF_SERVICE_GID` | 各 Runtime Fabric サービスを実行するときに使用されるグループ ID を表す整数。「planet」という名前のグループを作成するデフォルトの動作を上書きします。 | `900`
@@ -124,7 +122,7 @@ Runtime Fabric の特定のバージョンをインストールするには、�
 
 `./generate-configs.sh` スクリプトを使用して、VM ごとに環境変数を生成します。
 
-. 以下のコマンドをテキストエディタにコピーして、一重引用符内の各変数の値を入力します。
+. 以下のコマンドをテキストエディタにコピーして、一重引用符内の各変数の値を入力します。必要に応じて、その他の変数を追加して定義します。一般的な例は、アウトバウンドインターネット接続に HTTP プロキシが必要な場合です。
 +
 ----
 RTF_CONTROLLER_IPS='' \
@@ -137,7 +135,7 @@ RTF_MULE_LICENSE='' \
 ----
 +
 . コントローラ VM でシェル/SSH を開き、展開したディレクトリから `manual` サブディレクトリに移動します。
-. テキストエディタからコマンドをコピーし、ターミナルに貼り付けて、コントローラ VM でコマンドを実行します。このスクリプトは、各 VM で実行する一連の手順とスクリプトを各 VM の IP アドレスで分類して出力します。
+. テキストエディタからコマンドをコピーし、ターミナルに貼り付けて、コントローラ VM でコマンドを実行します。このスクリプトは、各 VM で実行する一連の手順とスクリプトを各 VM の IP アドレスで分類して出力します。出力された手順を表示するには、上へのスクロールが必要な場合があります。
 .. 各 VM でその IP アドレスに基づいてスニペットを実行し、必要な環境変数を適用します。
 .. 各 VM で `./scripts/init.sh` ファイルを `/opt/anypoint/runtimefabric` にコピーして、スクリプトが実行可能であることを確認します。以下のスクリプトは、現在の作業ディレクトリに、展開されたディレクトリ `rtf-install-scripts` が含まれることを前提とします。
 +
@@ -178,9 +176,10 @@ sudo /opt/anypoint/runtimefabric/init.sh foreground
 
 == インストールの進行状況の監視
 
-インストール中に進行状況を参照するには、各 VM の出力ログを確認します。
+`init.sh` スクリプトの実行時に `forground` パラメータが渡された場合、インストールログがターミナルに出力されます。それ以外の場合、インストール中に進行状況を参照するには、各 VM の出力ログを確認します。
 
-. 最初のコントローラ VM へのシェル (SSH セッション) を開きます。
+. 
+. VM への別のシェル (SSH セッション) を開きます。
 . `/var/log/rtf-init.log` にある出力ログを確認します。
 +
 ----
@@ -205,5 +204,7 @@ tail -f /var/log/rtf-init.log
 
 Anypoint Runtime Fabric にアプリケーションをデプロイする前に、次の手順を実行する必要があります。
 
-* xref:associate-environments.adoc[Runtime Fabric への環境の関連付け]
-* xref:enable-inbound-traffic.adoc[Runtime Fabric へのインバウンドトラフィックの有効化]
+* xref:associate-environments.adoc[Anypoint Runtime Fabric でのビジネスグループと環境の関連付け]
+* xref:enable-inbound-traffic.adoc[Anypoint Runtime Fabric でのインバウンドトラフィックの有効化]
+* xref:runtime-fabric-logs.adoc[Anypoint Runtime Fabric でのログ転送の設定]
+* xref:configure-alerting.adoc[Anypoint Runtime Fabric でのアラートの設定]

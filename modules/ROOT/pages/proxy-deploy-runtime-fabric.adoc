@@ -25,7 +25,7 @@ image::runtime-fabric-1.png[]
 
 . *[Proxy deployment target (プロキシデプロイメント対象)]* で *[Runtime Fabric]* を選択していることを確認します。
 
-. *[Save (保存)]* をクリックします。
+. *[保存]* をクリックします。
 +
 *[Deployment Configuration (デプロイメント設定)]* セクションで、次の設定を定義します。
 +

@@ -1,35 +1,35 @@
-= Install rtfctl
+= rtfctl のインストール
 ifndef::env-site,env-github[]
 include::_attributes.adoc[]
 endif::[]
 
-Install the rtfctl utility to manage Runtime Fabrics locally, with support for the following actions:
+rtfctl ユーティリティをインストールし、次のアクションをサポートする Runtime Fabrics をローカルで管理します。
 
-* Get the status of a Runtime Fabric
-* Perform a heap dump or a thread dump of a running application
-* Display memory usage of a running application
-* Manage proxy settings
-* Manage secure properties
-* Manage Mule license
+* Runtime Fabric の状況を取得する
+* 実行中のアプリケーションのヒープダンプまたはスレッドダンプを実行する
+* 実行中のアプリケーションのメモリ使用量を表示する
+* プロキシ設定を管理する
+* セキュアプロパティを管理する
+* Mule ライセンスを管理する
 
-== Install rtfctl 
+== rtfctl のインストール 
 
 [WARNING]
-You may need root privileges to a controller node running Runtime Fabric to follow this procedure.
+この手順を実行するには、Runtime Fabric を実行しているコントローラノードに対するルート権限が必要な場合があります。
 
-. Download the https://runtime-fabric.s3.amazonaws.com/rtfctl/rtfctl-0.2.32[latest version] of the `rtfctl` utility.
-. Transfer the `rtfctl` binary to a controller node under the `/usr/local/bin` folder.
-. Rename the binary to `rtfctl`.
-. Make the script executable by running `chmod +x /usr/bin/rtfctl`.
-. On the controller node, run `rtfctl -h` to verify the script works as expected by outputting instructions on how to use `rtfctl`.
+. `rtfctl` ユーティリティの https://runtime-fabric.s3.amazonaws.com/rtfctl/rtfctl-0.2.32[最新バージョン] をダウンロードします。
+. `rtfctl` バイナリをコントローラノードの `/usr/local/bin` フォルダ内に転送します。
+. バイナリ名を `rtfctl` に変更します。
+. `chmod +x /usr/bin/rtfctl` を実行してスクリプトを実行可能にします。
+. コントローラノードで、`rtfctl -h` を実行して `rtfctl` の使用方法の手順を出力し、スクリプトが期待どおりに機能することを確認します。
 
-== Supported Commands
+== サポートされているコマンド
 
-To view a list of all supported commands, run `rtfctl -h`. 
+サポートされているすべてのコマンドのリストを表示するには、`rtfctl -h` を実行します。 
 
-To get more information on a specific command, run `rtfctl <command> -h`.
+特定のコマンドに関する詳細情報を取得するには、`rtfctl <command> -h` を実行します。
 
-== See Also
+== 関連情報
 
-* xref:manage-proxy.adoc[Manage Proxies Used by Runtime Fabric]
-* xref:manage-secure-properties.adoc[Manage Secure Properties in Runtime Fabric]
+* xref:manage-proxy.adoc[Runtime Fabric で使用されるプロキシの管理]
+* xref:manage-secure-properties.adoc[Runtime Fabric でのセキュアプロパティの管理]

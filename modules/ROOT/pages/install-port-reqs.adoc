@@ -3,93 +3,103 @@ ifndef::env-site,env-github[]
 include::_attributes.adoc[]
 endif::[]
 
-Runtime Fabric のインストールと正常な操作のためには、特定のネットワーク設定とポート設定が必要です。
-
-== インストール中に使用する追加のポート
-
-次の表に、Anypoint Runtime Fabric のインストール時にアクセスできる必要があるポートを示します。インストールが完了したら、これらのポートを安全に無効にできます。
-
-[%header%autowidth.spread]
-|===
-| Port (ポート) | Protocol (プロトコル) | Direction (方向) | 使用方法
-| 61008 ～ 61010 | TCP (HTTPS) | 内部 | インストール中に使用
-| 61022 ～ 61024 | TCP (HTTPS) | 内部 | インストーラエージェントのポート
-| 4242 | TCP | 内部 | 帯域幅チェッカー
-|===
+Runtime Fabric のインストールと操作には、特定のネットワークとポート設定が必要です。
 
 == 必須のポート設定
 
 以下のセクションで、Anypoint Runtime Fabric の TCP および UDP ネットワークポートの要件を示します。
 
+=== インストール中に使用するポート
 
-=== TCP ポート
-
-次の表に、アクセスできる必要がある TCP ポートを示します。
-
-[%header%autowidth.spread]
-|===
-| Port (ポート) | Protocol (プロトコル) | Direction (方向) | 使用方法
-| 5672 | TCP (AMQP) | インターネットへのアウトバウンド | Anypoint Management Center
-| 443 | TCP (HTTPS) | インターネットへのアウトバウンド | 管理サービス、API Manager のポリシーの更新、API Analytics の取り込み、リソースの取得 (アプリケーションファイル、コンテナ画像)。
-| 443 | TCP (HTTPS) | イングレス | Mulel へのインバウンドトラフィック
-| 32009 | TCP (HTTPS) | イングレス | Runtime Fabric オペレーションセンター
-| 2379、2380、4001、7001 | TCP | 内部 | etcd 分散型データベース
-| 6060 | TCP | 内部 | 健全性チェック
-| 6443、8080 | TCP | 内部 | Kubernetes API サーバ
-| 30000 ～ 32767 | TCP | 内部 | 内部サービスのポート範囲
-| 10248 ～ 10250 | TCP | 内部 | Kubernetes コンポーネント
-| 10255 | TCP | 内部 | Kubernetes コンポーネント
-| 53 | TCP | 内部 | Internal DNS (内部 DNS)
-| 7496 | TCP | 内部  | ピアツーピア接続
-| 5000 | TCP | 内部 | Docker レジストリ
-| 3022 ～ 3025 | TCP | 内部 | リモートデバッグサービス
-| 3080 | TCP | 内部 | Runtime Fabric 内部オペレーションセンター
-| 3008 ～ 3012 | TCP | 内部 | Runtime Fabric 内部サービス
-| 7575、7373 | TCP | 内部 | Runtime Fabric 内部サービス
-|===
-
-=== UDP ポート
-
-次の表に、Runtime Fabric にアクセスできる必要がある UDP ポートを示します。
+次の表に、Anypoint Runtime Fabric のインストールでアクセスできる必要があるポートを示します。インストールが完了したら、これらのポートを安全に無効にできます。
 
 [%header%autowidth.spread]
 |===
-| Port (ポート) | Protocol (プロトコル) | Direction (方向) | 使用方法
-| 53 | UDP | 内部 | Internal DNS (内部 DNS)
-| 8472 | UDP | 内部 | オーバーレイネットワーク
+| ポート | Protocol (プロトコル) | 説明
+| 4242 | TCP | 帯域幅チェッカー
+| 61008 ～ 61010 | TCP | インストール中に使用
+| 61022 ～ 61024 | TCP | インストーラエージェントのポート
+|===
+
+=== ネットワーク TCP および UDP ポート
+
+次の表に、開く必要があるすべてのポートと、使用されるそれぞれのプロトコルおよび要求の実行元と宛先を示します。
+
+[%header%autowidth.spread]
+|===
+| ポート | レイヤ 4 プロトコル | レイヤ 5 プロトコル | ソース | 宛先 | 説明
+| 123 | UDP | NTP | すべてのノード | インターネット | ネットワークタイムプロトコルを介した時計の同期
+| 443 | TCP | HTTPS | インターネット | コントローラノード | Mule へのインバウンド要求を許可
+| 443 | TCP | WebSockets 経由の AMQP | コントローラノード | インターネット | Anypoint Platform 管理サービス
+| 443 | TCP | HTTPS | すべてのノード | インターネット | API Manager のポリシーの更新、API Analytics の取り込み、リソースの取得 (アプリケーションファイル、コンテナ画像)。
+| 5044 | TCP | Lumberjack | すべてのノード | インターネット | Anypoint Monitoring、Anypoint Visualizer
+| 53 | TCP | DNS | localhost | localhost | 内部クラスタ DNS
+| 2379、2380、4001、7001 | TCP | HTTPS | すべてのノード | コントローラノード | etcd サーバ通信
+| 3008 ～ 3012 | TCP | HTTPS/gRPC | すべてのノード | すべてのノード | Runtime Fabric 内部サービス
+| 3022 ～ 3025 | TCP | SSH | すべてのノード | すべてのノード | 内部 SSH コントロールサービス
+| 3080 | TCP | HTTPS | すべてのノード | コントローラノード | Runtime Fabric 内部オペレーションセンター
+| 5000 | TCP | HTTPS | すべてのノード | コントローラノード | 内部コンテナレジストリ
+| 6060  | TCP | HTTPS/gRPC | すべてのノード | すべてのノード | Runtime Fabric 内部サービス
+| 6443、8080 | TCP | HTTPS/HTTP | すべてのノード | コントローラノード | Kubernetes API サーバ
+| 7373 | TCP | RPC | localhost | localhost | ピアツーピア接続用の Serf RPC
+| 7496 | TCP | HTTPS | すべてのノード | すべてのノード | Serf (状態チェックエージェント)/ピアツーピア接続
+| 7575 | TCP | gRPC | すべてのノード | すべてのノード | クラスタの状況 API
+| 10248 ～ 10250 | TCP | HTTPS | すべてのノード | すべてのノード | Kubernetes コンポーネント
+| 10255 | TCP | HTTPS | すべてのノード | すべてのノード | Kubernetes コンポーネント
+| 30000 ～ 32767 | TCP | アプリケーション固有 | すべてのノード | すべてのノード | 要求をアプリケーションにルーティングするために使用される内部サービスポート範囲
+| 32009 | TCP | HTTPS | 内部ネットワーク | コントローラノード | Runtime Fabric オペレーションセンター
+| 32009 | TCP | HTTPS | コントローラノード | すべてのノード | オペレーションセンター内部 API
+| 53 | UDP | DNS | localhost | localhost | 内部クラスタ DNS
+| 7496 | UDP | HTTPS | すべてのノード | すべてのノード | Serf (状態チェックエージェント)/ピアツーピア接続
+| 8472 | UDP | VXLAN | すべてのノード | すべてのノード | オーバーレイネットワーク
+| 30000 ～ 32767 | UDP | アプリケーション固有 | すべてのノード | すべてのノード | 要求をアプリケーションにルーティングするために使用される内部サービスポート範囲
 |===
 
 == ポート IP とホスト名のホワイトリスト登録
 
-ネットワーク設定で、Anypoint Platform コンポーネントとサービスのホスト名とポートをホワイトリストに登録し、Anypoint Runtime Fabric がそれらと通信できるようにすることが必要になる場合があります。これは、インストールまたはアップグレード中に連動関係をダウンロードするためにも必要になります。
+ネットワーク設定で、Anypoint Platform コンポーネントとサービスのホスト名とポートをホワイトリストに登録し、Anypoint Runtime Fabric がそれらと通信できるようにすることが必要になる場合があります。これは、インストールおよびアップグレード中に連動関係をダウンロードするためにも必要になります。
 
 次の表に、Runtime Fabric と Anypoint Platform との間の通信を許可するためにホワイトリストに追加するポートとホスト名を示します。
 
 [%header%autowidth.spread]
 |===
-| Port (ポート) | Protocol (プロトコル) | ホスト名
-| 5672 | TCP (AMQP) | `transport-layer.prod.cloudhub.io`
+| ポート | Protocol (プロトコル) | ホスト名
+.2+| 443 .2+| WebSockets 経由の AMQP | US コントロールプレーン: `transport-layer.prod.cloudhub.io`
+| EU コントロールプレーン: `transport-layer.prod-eu.msap.io`
+.2+| 5044 .2+| TCP (Lumberjack) | US コントロールプレーン: `dias-ingestor-nginx.prod.cloudhub.io`
+| EU コントロールプレーン: `dias-ingestor-nginx.prod-eu.msap.io`
 | 443 | HTTPS | `*.prod.cloudhub.io`
 | 443 | HTTPS | `anypoint.mulesoft.com`
 | 443 | HTTPS | `*.anypoint.mulesoft.com`
-| 443 | HTTPS | `kubernetes-charts.storage.googleapis.com`
-| 443 | HTTPS | `worker-cloud-helm-prod.s3.amazonaws.com`
-| 443 | HTTPS | `docker-images-prod.s3.amazonaws.com`
+.2+| 443 .2+| HTTPS | `worker-cloud-helm-prod.s3.amazonaws.com`
+| EU コントロールプレーン: `worker-cloud-helm-prod-eu-rt.s3.amazonaws.com` `worker-cloud-helm-prod-eu-rt.s3.eu-central-1.amazonaws.com`
+.2+| 443 .2+| HTTPS | `exchange2-asset-manager-kprod.s3.amazonaws.com`
+| EU コントロールプレーン: `exchange2-asset-manager-kprod-eu.s3.amazonaws.com` `exchange2-asset-manager-kprod-eu.s3.eu-central-1.amazonaws.com`
 .2+| 443 .2+| HTTPS | US コントロールプレーン: `ecr.us-east-1.amazonaws.com`
 | EU コントロールプレーン: `ecr.eu-central-1.amazonaws.com`
 .2+| 443 .2+| HTTPS | US コントロールプレーン: `*.ecr.us-east-1.amazonaws.com`
 | EU コントロールプレーン: `*.ecr.eu-central-1.amazonaws.com`
 .2+| 443 .2+| HTTPS | US コントロールプレーン: `prod-us-east-1-starport-layer-bucket.s3.amazonaws.com`
-| EU コントロールプレーン: `prod-eu-central-1-starport-layer-bucket.s3.amazonaws.com`
+| EU コントロールプレーン: `prod-eu-central-1-starport-layer-bucket.s3.amazonaws.com` `prod-eu-central-1-starport-layer-bucket.s3.eu-central-1.amazonaws.com`
+.2+| 443 .2+| HTTPS | US コントロールプレーン: `runtime-fabric.s3.amazonaws.com`
+| EU コントロールプレーン: `runtime-fabric-eu.s3.amazonaws.com`
 |===
 
 == 必須のネットワーク設定
 
-Anypoint Runtime Fabric には、次のネットワーク設定が必要です。
+上記のポート要件に加えて、Anypoint Runtime Fabric を操作するには次のネットワーク設定が必要です。
 
 * 他の VM を Runtime Fabric に追加するための割り当て可能な十分な IP アドレスを持つサブネット。
 * Runtime Fabric をインストールするために使用する各 VM へのシェル/SSH アクセス。
+* 各 VM に割り当てられた静的な非公開 IPv4 アドレス。再起動間で保持されます。
+* 内部 Kubernetes 負荷分散を有効にするカーネル IP 転送。インストール中、各 VM で IPv4 転送が有効になります。
+* ホスト Linux カーネルがホストされているコンテナとの間でパケットを双方向に変換できるようにするブリッジネットフィルター。このカーネルモジュールは、インストール中に各 VM で有効になります。
+* Runtime Fabric によってトリガされるメールアラートを管理する SMTP サーバへのアクセス。
+* 各コントローラ VM で実行されている内部ロードバランサへの外部要求のバランスを取る外部ロードバランサ。
+* インターネットへの発信要求をプロキシ経由でルーティングする必要がある場合の環境の HTTP プロキシ設定。
+* インターネットへの発信要求がプロキシを経由する必要がある場合、Anypoint Monitoring および Visualizer の SOCKS5 プロキシのサポート。
 
 == 関連情報
 
 * xref:install-sys-reqs.adoc[Anypoint Runtime Fabric のシステム要件の確認]
+* xref:architecture.adoc[Anypoint Runtime Fabric アーキテクチャ]

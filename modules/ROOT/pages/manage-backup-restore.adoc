@@ -1,67 +1,67 @@
-= Back up and Restore Runtime Fabric
+= Runtime Fabric のバックアップと復元
 ifndef::env-site,env-github[]
 include::_attributes.adoc[]
 endif::[]
 
-== Prerequisites
+== 前提条件
 
-Before performing a backup or restore operation, verify that Runtime Fabric was installed or upgraded 
-using  https://docs.mulesoft.com/release-notes/runtime-fabric/runtime-fabric-installer-release-notes[installer version 1.1.1561762676, role=external, window=_blank] or greater. 
-The installer version can be verified by running `gravity status` on a Runtime Fabric node.
+バックアップまたは復元操作を実行する前に、Runtime Fabric がインストールまたはアップグレードされていることを
+https://docs.mulesoft.com/release-notes/runtime-fabric/runtime-fabric-installer-release-notes[インストーラバージョン 1.1.1561762676, role=external, window=_blank] 以降を使用して確認します。 
+インストーラバージョンを確認するには、Runtime Fabric ノードで `gravity status` を実行します。
 
-To preserve applications in the event of system failure, ensure that Runtime Fabric is automatically backed up. 
-MuleSoft highly recommends configuring hourly backups. Store your backup archive on external storage outside 
-the Runtime Fabric cluster.
+万一システム障害が発生してもアプリケーションが保持されるように、Runtime Fabric が自動的にバックアップされるようにします。 
+1 時間ごとのバックアップを設定することを強くお勧めします。Runtime Fabric の外部にある外部ストレージにバックアップ
+アーカイブを保存します。
 
-== Create a Backup
+== バックアップを作成する
 
-To create a backup, run the following command on any controller node in the cluster as a privileged user (with root access):
+バックアップを作成するには、クラスタ内の任意のコントローラノードで (ルートアクセス権を持つ) 特権ユーザとして次のコマンドを実行します。
 
 ----
 gravity backup /var/lib/gravity/planet/share/backup.tar.gz
 ----
 
-You can pass the following optional parameters to the `gravity backup` command:
+次の省略可能なパラメータを `gravity backup` コマンドに渡すことができます。
 
-* `--follow`: outputs the backup job logs to the terminal
-* `--timeout`: specifies the deadline for the backup job (e.g.: 30s, 5m, etc). Default is 20m.
-* `--log-file`: outputs logs to a file
+* `--follow`: バックアップジョブのログをターミナルに出力します。
+* `--timeout`: バックアップジョブの期限を指定します (例: 30 秒、5 分など)。デフォルトは 20 分です。
+* `--log-file`: ログをファイルに出力します。
 
-This command creates an archive of the current system state in: `/var/lib/gravity/planet/share/backup.tar.gz`. 
+このコマンドにより、現在のシステム状態のアーカイブが `/var/lib/gravity/planet/share/backup.tar.gz` に作成されます。 
 
-== Restore a System
+== システムを復元する
 
-To restore a system from a backup, you can use the existing Runtime Fabric cluster or create a new Runtime Fabric 
-cluster with the same hardware (number of servers, disks, and so on) as the cluster being restored.
+バックアップからシステムを復元するには、既存の Runtime Fabric クラスタを使用するか、復元するクラスタと
+同じハードウェア (サーバ、ディスクの数など) が含まれる新しい Runtime Fabric クラスタを作成します。
 
 [WARNING]
-You can not restore Runtime Fabric on a newer version of the Runtime Fabric cluster. The new installation must use 
-the same version of Runtime Fabric installation bundle as the backup.
+Runtime Fabric クラスタの新しいバージョンで Runtime Fabric を復元することはできません。新しいインストールでは、
+バックアップと同じバージョンの Runtime Fabric インストールバンドルを使用する必要があります。
 
-. Log in to a controller node in your Runtime Fabric as a privileged user (with root access).
+. Runtime Fabric のコントローラノードに (ルートアクセス権を持つ) 特権ユーザとしてログインします。
 
-. Move the compressed backup archive file to a folder in any of the nodes of the environment to be restored. 
-You can transfer this file securely via the following command:
+. 圧縮されたバックアップアーカイブファイルを、復元する環境の任意のノードのフォルダに移動します。 
+このファイルは次のコマンドを使用して安全に転送できます。
 +
 ----
 scp /backup-path/to-restore.tar.gz your_username@remotehost:/var/lib/gravity/planet/share
 ----
 
-. Restore the cluster from the backup archive:
+. バックアップアーカイブからクラスタを復元します。
 +
 ----
 sudo gravity restore /var/lib/gravity/planet/share/to-restore.tar.gz
 ----
 
-You can pass the following optional parameters:
+次の省略可能なパラメータを渡すことができます。
 
-* `--follow`: outputs the backup job logs to stdout
-* `--timeout`: specifies the deadline for the backup job (e.g.: 30s, 5m, etc). Default is 20m.
-* `--log-file`: outputs logs to a file
+* `--follow`: バックアップジョブのログを stdout に出力します。
+* `--timeout`: バックアップジョブの期限を指定します (例: 30 秒、5 分など)。デフォルトは 20 分です。
+* `--log-file`: ログをファイルに出力します。
 
-This process requires a few minutes. 
+このプロセスには数分かかります。 
 
-== See Also
+== 関連情報
 
-* xref:manage-nodes.adoc[Add or Remove a Node from a Runtime Fabric]
-* xref:install-sys-reqs.adoc[System Requirements for Anypoint Runtime Fabric]
+* xref:manage-nodes.adoc[Runtime Fabric からのノードの追加または削除]
+* xref:install-sys-reqs.adoc[Anypoint Runtime Fabric のシステム要件]

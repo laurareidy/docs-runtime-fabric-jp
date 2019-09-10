@@ -27,8 +27,7 @@ AWS で Anypoint Runtime Fabric をインストールするには、次の要件
 * 仮想マシンをプロビジョニングするのに必要な https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html[AWS キーペア]がある。このキーペアは、SSH (Secure Shell) を介した VM へのセキュアなアクセスを有効にするのに必要です。
 * AWS 固有の環境変数 (`AWS_ACCESS_KEY`、`AWS_ACCESS_SECRET_KEY`、`AWS_SESSION_TOKEN`、`AWS_REGION`、`AWS_DEFAULT_REGION`) へのアクセス権がある。これらは、Terraform スクリプトを実行するのに必要です。これらの値がわからない場合は、AWS 管理者にお問い合わせください。
 
-
-== Mule ライセンスキーが Base64 でエンコードされていることの確認
+== Mule ライセンスキーの Base64 でのエンコード
 
 Runtime Fabric をインストールするには、Mule ライセンスキーが Base64 でエンコードされている必要があります。組織の Mule Enterprise ライセンスキーファイル (license.lic) を見つけ、オペレーティングシステムに応じて以下を実行します。
 
@@ -50,15 +49,13 @@ base64 -b0 license.lic
 
 === Windows
 
-Windows でライセンスファイルをエンコードするには、シェルターミナルエミュレータ (cygwin など) や Unix ベースのコンピュータにアクセスして、次の手順を実行します。
+Windows でライセンスファイルをエンコードするには、シェルターミナルエミュレータ (cygwin など) や Unix ベースのコンピュータを使用して、次の手順を実行します。
 
 . 組織の Mule Enterprise ライセンスキーファイル (`license.lic`) を見つけ、必要に応じて Unix 環境に転送します。
-. ターミナルl/シェルを開き、`azure` サブディレクトリに移動します。
-. 実行前に Mule Enterprise ライセンスを簡単に追加できるように、テキストエディタに以下のコマンドをコピーします。
+. 次のコマンドを実行して、ライセンスキーを Base64 でエンコードします。
 +
 ----
-RTF_MULE_LICENSE='' \
-./generate-templates.sh
+base64 -w0 license.lic
 ----
 
 == Terraform のインストール
@@ -82,7 +79,8 @@ MuleSoft には、必要な AWS リソースをプロビジョニングするた
 `rtf-install-scripts` フォルダ内には、以下が含まれる `aws` フォルダがあります。
 
 * `fabric.tf`: AWS アカウントでインフラストラクチャをプロビジョニングする Terraform スクリプト
-* `security_group.tf`: `fabric.tf` スクリプトで使用されるセキュリティグループが含まれる Terraform スクリプト
+* `network_ingress.tf`: ネットワークイングレスに使用されるセキュリティグループルールを含む Terraform スクリプト
+* `network_egress.tf`: ネットワークエグレスに使用されるセキュリティグループルールを含む Terraform スクリプト
 * `installer_env.sh`: インストール中にリーダーとして機能するコントローラ VM に追加される環境変数のシェルスクリプト
 * `controller_env.sh`: 他のコントローラ VM に追加される環境変数のシェルスクリプト
 * `worker_env.sh`: ワーカー VM に追加される環境変数のシェルスクリプト
@@ -93,7 +91,7 @@ MuleSoft には、必要な AWS リソースをプロビジョニングするた
 Terraform を実行する前に、特定の環境が反映されるように `fabric.tf` スクリプトを変更します。以下の表には、必須の環境変数と省略可能な環境変数が記載されています。
 
 [NOTE]
-環境に応じて、以下の表に記載されていない、`fabric.tf` 内で指定される環境変数を変更することが必要になる場合もあります。これは、既存の AWS リソースを使用する必要がある場合に多くみられます。
+環境に応じて、以下の表に記載されていない、`fabric.tf` 内で指定される環境変数を変更することが必要になる場合もあります。これは、既存の AWS リソース (既存の VPC など) を使用する必要がある場合に多くみられます。
 
 *必須の環境変数*
 
@@ -102,10 +100,10 @@ Terraform を実行する前に、特定の環境が反映されるように `fa
 |変数 | 説明 | 例
 | `activation_data` | エンコードされた Runtime Fabric アクティベーションデータ。このデータにアクセスするには、Runtime Manager で Runtime Fabric を表示します。 | `NzdlMzU1YTktMzAxMC00OGE0LWJlMGQtMDdxxxx`
 | `key_pair` | デプロイ先の AWS リージョンのキーペアの名前。 | `my-keypair`
-| `enable_elastic_ips` | インストーラで各 VM の公開 IP アドレスを作成するかどうかを指定します。公開 IP を使用すると、ネットワークから直接 VM に `ssh` で接続できます。この値が `false` (デフォルト) に設定されている場合、各 VM はその VPC で設定されたプライベートネットワークにしかアクセスできません。`false` を指定する場合、VM へのシェル/SSH アクセス権を取得する方法についてネットワーク管理者と相談していることを確認してください。 | `true`
+| `enable_public_ips` | インストーラで各 VM の公開 IP アドレスを作成するかどうかを指定します。公開 IP を使用すると、ネットワークから直接 VM に `ssh` で接続できます。この値が `false` (デフォルト) に設定されている場合、各 VM はその VPC で設定されたプライベートネットワークにしかアクセスできません。`false` を指定する場合、VM へのシェル/SSH アクセス権を取得する方法についてネットワーク管理者と相談していることを確認してください。 | `true`
 | `controllers` | プロビジョニングするコントローラ VM の数。 | `3`
 | `workers` | プロビジョニングするワーカー VM の数。 | `3`
-| `mule_license` | 組織の Mule Enterprise ライセンスキー (`license.lic`) の base64 でエンコードされたコンテンツ。 |
+| `mule_license` | 組織の Mule Enterprise ライセンスキー (`license.lic`)  を Base64 でエンコードしたコンテンツ。 |
 |===
 
 
@@ -118,7 +116,7 @@ Terraform を実行する前に、特定の環境が反映されるように `fa
 | `service_uid` | 各 Runtime Fabric サービスを実行するユーザ ID を表す整数。「planet」という名前のユーザを作成するデフォルトの動作を上書きします。 | `1000`
 | `service_gid` | 各 Runtime Fabric サービスを実行するときに使用されるグループ ID を表す整数。「planet」という名前のグループを作成するデフォルトの動作を上書きします。 | `900`
 | `http_proxy` | アウトバウンド HTTP 要求を転送する HTTP プロキシサーバのホスト名およびポート。 | `1.1.1.1:80`
-| `tcp_proxy` | アウトバウンド TCP 要求を転送する TCP プロキシサーバのホスト名およびポート。 | `1.1.1.2:800`
+| `monitoring_proxy` | SOCKS5 プロキシサーバがメトリクスとログを Anypoint Monitoring に転送するためのホスト名とポート、および省略可能なユーザ名とパスワード。 | `user:pass@1.1.1.2:800`
 | `no_proxy` | プロキシをバイパスする必要があるホストのカンマ区切りリスト。 | `1.1.1.1,no-proxy.com`
 | `existing_vpc_id` | 既存の AWS Virtual Private Cloud (VPC) を指定します。既存の VPC にインストールする場合に必要になります。インストーラは、新しい VPC を作成せずにこの VPC を使用します。 |
 | `existing_subnet_ids` | AWS 内の既存のサブネット ID を指定します。既存のネットワークにインストールする場合に必要になります。インストーラは、新しいサブネットを作成せずにこれらのサブネットを使用します。 |

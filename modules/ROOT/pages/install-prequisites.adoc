@@ -9,7 +9,7 @@ Runtime Fabric を設定するには、次の手順に従います。
 
 . インフラストラクチャをプロビジョニングし、設定する
 . Runtime Fabric をインストールし、アクティブ化する
-. xref:runtime-fabric-logs.adoc[ログ転送の設定]
+. xref:runtime-fabric-logs.adoc[ログ転送を設定する]
 . xref:configure-alerting.adoc[アラートを設定する]
 . xref:associate-environments.adoc[環境に Runtime Fabric を関連付ける]
 . xref:enable-inbound-traffic.adoc[インバウンドトラフィックを有効にする]

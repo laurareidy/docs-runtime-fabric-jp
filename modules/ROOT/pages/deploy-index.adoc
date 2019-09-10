@@ -1,22 +1,36 @@
 = Runtime Fabric へのアプリケーションおよび API プロキシのデプロイ
 
-Anypoint Runtime Fabric では、Runtime Fabric で管理された Mule Runtime に Mule アプリケーションと API プロキシを プロイできます。
+Anypoint Runtime Fabric では、Runtime Fabric で管理された Mule Runtime Engine に Mule アプリケーションと API プロキシをデプロイできます。
 
-= 前提条件
+== サポートされている Mule バージョン
+
+Anypoint Runtime Fabric では、Mule Runtime の次のバージョンへのデプロイメントがサポートされています。
+
+* 3.8.7
+* 3.9.1、3.9.2
+* 4.1.2+
+* 4.2.0
+
+== 前提条件
 
 Mule アプリケーションまたは API プロキシを Runtime Fabric にデプロイする前に、次のことを実行します。
 
 * Runtime Fabric をインストールして設定する。
-* Mule アプリケーションまたは API プロキシを Exchange にパブリッシュする。Runtime Fabric にデプロイする前に、Mule アプリケーションと API プロキシを Exchange にパブリッシュする必要があります。Runtime Manager からデプロイする場合、このアクションが自動的に実行されます。
 * xref:deploy-resource-allocation.adoc[「Anypoint Runtime Fabric でのリソース割り当て」]で説明されているリソースが割り当てられる方法を理解する。
+* Mule アプリケーションまたは API プロキシを Exchange にパブリッシュする。 +
+[NOTE]
+Mule アプリケーションと API プロキシを Runtime Fabric にデプロイする前に、それらを Exchange にパブリッシュする必要があります。Mule アプリケーションと API プロキシを Runtime Manager からデプロイすると、それらは自動的に Exchange にパブリッシュされます。
 
-= Runtime Manager を使用したデプロイ
+
+== Runtime Manager を使用したデプロイ
 
 Runtime Manager を使用して、Mule アプリケーションと API プロキシを手動でデプロイできます。xref:deploy-to-runtime-fabric.adoc[「Runtime Fabric に Mule アプリケーションをデプロイする」]を参照してください。
 
-= Maven を使用したデプロイ
+== Maven を使用したデプロイ
 
-Runtime Fabric は、Maven による Mule アプリケーションまたは API プロキシの管理およびデプロイをサポートしています。アプリケーションがサポートしている Mule Runtime のバージョンに固有の情報については、次のトピックを参照してください。
+Runtime Fabric は、Maven による Mule アプリケーションまたは API プロキシの管理およびデプロイをサポートしています。 
+
+Maven を使用して Mule アプリケーションと API プロキシをデプロイするには、Mule バージョンに固有のトピックを参照してください。
 
 * xref:deploy-maven-4.x.adoc[Maven を使用した Runtime Fabric へのアプリケーションのデプロイ (Mule 4)]
 * xref:deploy-maven-3.x.adoc[Maven を使用した Runtime Fabric へのアプリケーションのデプロイ (Mule 3.x)]

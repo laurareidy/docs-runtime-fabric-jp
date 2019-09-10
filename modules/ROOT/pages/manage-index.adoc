@@ -4,6 +4,8 @@ Runtime Fabric をインストールおよび設定し、Mule アプリケーシ
 
 * クラスタのノードを追加または削除して、クラスタの健全性を維持したり、アップグレードを実行したりします。xref:manage-nodes.adoc[「Runtime Fabric へのノードの追加または削除」]を参照してください。
 * Runtime Fabric インストールのパフォーマンスと健全性を監視します。xref:using-opscenter.adoc[「Anypoint Runtime Fabric でのオペレーションセンターの使用」]を参照してください。
+* Anypoint Monitoring および Visualizer を使用して、Runtime Fabric にデプロイされたアプリケーションを監視します。xref:manage-monitor-applications.adoc[「Runtime Fabric にデプロイされたアプリケーションの監視」]を参照してください。
+* rtfctl をインストールして Runtime Fabric の設定を管理します。xref:install-rtfctl.adoc[「rtfctl のインストール」]を参照してください。
 * インストールのエラーまたはインストール後のエラーのトラブルシューティングを行います。xref:troubleshoot-guide.adoc[「Runtime Fabric のトラブルシューティング」]を参照してください。
 
 == 関連情報

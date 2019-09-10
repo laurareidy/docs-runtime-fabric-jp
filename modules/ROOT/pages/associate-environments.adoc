@@ -3,9 +3,9 @@ ifndef::env-site,env-github[]
 include::_attributes.adoc[]
 endif::[]
 
-アプリケーションまたは API ゲートウェイを Anypoint Runtime Fabric にデプロイする前に、Runtime Fabric を 1 つ以上の Anypoint Platform 環境に関連付ける必要があります。デプロイする環境でこれを実行するまで、Mule アプリケーションをデプロイするときに、デプロイメント対象として Runtime Fabric を選択することはできません。
+アプリケーションまたは API ゲートウェイを Anypoint Runtime Fabric にデプロイする前に、Runtime Fabric を 1 つ以上の Anypoint Platform 環境に関連付ける必要があります。デプロイする環境でこの手順を実行するまで、Mule アプリケーションをデプロイするときに、デプロイメント対象として Runtime Fabric を選択することはできません。
 
-ビジネスグループまたは環境を Runtime Fabric に関連付ける手順は、次のとおりです。
+環境を Runtime Fabric に関連付ける手順は、次のとおりです。
 
 . Anypoint Platform から *[Runtime Manager]* を選択します。
 . 左サイドバーで、*[Runtime Fabric]* セクションを選択します。
@@ -30,7 +30,7 @@ Runtime Fabric を組織のビジネスグループと共有できます。こ�
 . 左サイドバーで、*[Runtime Fabric]* タブを選択します。
 . 管理する Runtime Fabric を選択します。
 . *[Associated Environments (関連付けられた環境)]* タブで、*[Add business group (ビジネスグループを追加)]* をクリックします。
-. この Runtime Fabric を共有するビジネスグループを選択します。
+. この Runtime Fabric と共有するビジネスグループを選択します。
 +
 ビジネスグループの環境のリストが表示されます。
 

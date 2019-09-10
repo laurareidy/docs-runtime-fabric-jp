@@ -1,39 +1,39 @@
-= Manage Secure Properties in Runtime Fabric
+= Runtime Fabric でのセキュアプロパティの管理
 ifndef::env-site,env-github[]
 include::_attributes.adoc[]
 endif::[]
 
-Secure properties are added in the Runtime Fabric cluster locally, are stored securely, and are scoped per environment. Secure properties are accessible in unencrypted form by Mule applications deployed in the scoped environment as custom properties.
+セキュアプロパティは、Runtime Fabric クラスタのローカルに追加され、安全に保存され、環境ごとにスコープ設定されます。セキュアプロパティには、スコープ設定された環境にカスタムプロパティとしてデプロイされた Mule アプリケーションから暗号化されていない形式でアクセスできます。
 
-== Install rtfctl 
+== rtfctl のインストール 
 
-The rtftl tool is required to manage secure properties on Runtime Fabric locally. Follow the steps to xref:install-rtfctl.adoc[install rtfctl] before moving forward with managing secure properties.
+Runtime Fabric のセキュアプロパティをローカルで管理するには、rtftl ツールが必要です。セキュアプロパティの管理に進む前に、xref:install-rtfctl.adoc[rtfctl をインストール]する手順に従います。
 
-== Set secure properties
+== セキュアプロパティを設定する
 
-. Log into a controller node where `rtfctl` is installed. 
-. Run the following command to set a secure property to the Runtime Fabric under a specific environment, substituting the placeholder fields:
+. `rtfctl` がインストールされているコントローラーノードにログインします。 
+. 次のコマンドのプレースホルダ項目を置き換えて実行し、特定の環境で Runtime Fabric にセキュアプロパティを設定します。
 +
 ----
 rtfctl apply secure-property --key <my_key> --value <my_value> -n <environment_id>
 ----
 +
-* *<my_key>*: the key for the secure property used in the Mule application to reference the value.
-* *<my_value>*: the value for the secure property to store.
-* *<environment_id>*: the Anypoint environment ID to scope this secure property to. Only applications deployed to this environment will have access to this secure property.
+* *<my_key>*: Mule アプリケーションで値を参照するために使用されるセキュアプロパティのキー。
+* *<my_value>*: 保存するセキュアプロパティの値。
+* *<environment_id>*: このセキュアプロパティをスコープ設定する Anypoint 環境 ID。この環境にデプロイされたアプリケーションのみがこのセキュアプロパティにアクセスできます。
 
-== View secure properties
+== セキュアプロパティを表示する
 
-. Log into a controller node where `rtfctl` is installed. 
-. Run the following command to view the secure properties applied to the Runtime Fabric under a specific environment, substituting the placeholder fields:
+. `rtfctl` がインストールされているコントローラーノードにログインします。 
+. 次のコマンドのプレースホルダ項目を置き換えて実行し、特定の環境で Runtime Fabric に適用されるセキュアプロパティを表示します。
 +
 ----
 rtfctl get secure-properties -n <environment_id>
 ----
 +
-* *<environment_id>*: the Anypoint environment ID to list the secure properties under.
+* *<environment_id>*: セキュアプロパティを表示する Anypoint 環境 ID。
 
-== See Also
+== 関連情報
 
-* xref:install-rtfctl.adoc[Install rtfctl]
-* xref:manage-proxy.adoc[Manage Proxies Used by Runtime Fabric]
+* xref:install-rtfctl.adoc[rtfctl のインストール]
+* xref:manage-proxy.adoc[Runtime Fabric で使用されるプロキシの管理]

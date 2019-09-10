@@ -29,6 +29,8 @@ mkdir -p /opt/anypoint/runtimefabric
 * RTF_PRIVATE_IP
 * RTF_DOCKER_DEVICE
 * RTF_ETCD_DEVICE (コントローラノードのみ)
+* RTF_ACTIVATION_DATA が存在する場合は削除する
+* RTF_INSTALL_ROLE=joiner
 
 . 新しいノードで特権ユーザとして `init.sh` スクリプトを実行します。このスクリプトを実行する場合、実行可能権限の追加が必要になる場合があります。
 +
